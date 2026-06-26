@@ -1,0 +1,94 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: funkomacetas-app
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    environment:
+      - APP_ENV=production
+      - APP_DEBUG=false
+      - APP_KEY=${APP_KEY}
+      - DB_HOST=database
+      - DB_PORT=3306
+      - DB_DATABASE=funkomacetas
+      - DB_USERNAME=${DB_USERNAME:-funkomacetas}
+      - DB_PASSWORD=${DB_PASSWORD:-password}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-}
+    volumes:
+      - ./storage:/var/www/storage
+      - ./bootstrap/cache:/var/www/bootstrap/cache
+    depends_on:
+      - database
+      - redis
+    networks:
+      - funkomacetas
+
+  database:
+    image: mysql:8.0
+    container_name: funkomacetas-db
+    restart: unless-stopped
+    environment:
+      - MYSQL_DATABASE=funkomacetas
+      - MYSQL_USERNAME=${DB_USERNAME:-funkomacetas}
+      - MYSQL_PASSWORD=${DB_PASSWORD:-password}
+      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD:-rootpassword}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+      - "3307:3306"
+    networks:
+      - funkomacetas
+
+  redis:
+    image: redis:7-alpine
+    container_name: funkomacetas-redis
+    restart: unless-stopped
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - funkomacetas
+
+  queue:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: funkomacetas-queue
+    restart: unless-stopped
+    command: php artisan queue:work --sleep=3 --tries=3 --max-time=3600
+    environment:
+      - APP_ENV=production
+      - APP_DEBUG=false
+      - APP_KEY=${APP_KEY}
+      - DB_HOST=database
+      - DB_PORT=3306
+      - DB_DATABASE=funkomacetas
+      - DB_USERNAME=${DB_USERNAME:-funkomacetas}
+      - DB_PASSWORD=${DB_PASSWORD:-password}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-}
+    volumes:
+      - ./storage:/var/www/storage
+      - ./bootstrap/cache:/var/www/bootstrap/cache
+    depends_on:
+      - database
+      - redis
+    networks:
+      - funkomacetas
+
+networks:
+  funkomacetas:
+    driver: bridge
+
+volumes:
+  mysql_data:
+  redis_data:

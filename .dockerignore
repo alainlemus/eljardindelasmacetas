@@ -1,0 +1,17 @@
+.git
+.gitignore
+docker-compose.yml
+Dockerfile
+.env
+.env.*
+!.env.docker
+node_modules
+npm-debug.log
+yarn-error.log
+storage/*.key
+vendor
+.idea
+.vscode
+*.md
+.DS_Store
+Thumbs.db
