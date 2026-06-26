@@ -7,8 +7,32 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <title>@yield('title', 'Funkomacetas - Catálogo')</title>
-    <meta name="description" content="Catálogo de Funkomacetas - Figuras Funko Pop convertidas en macetas artesanales">
+    <title>@yield('title', 'El Jardín de las Macetas - Catálogo')</title>
+    <meta name="description" content="Catálogo de El Jardín de las Macetas - Figuras Funko Pop convertidas en macetas artesanales">
+    <meta name="keywords" content="funko pop, macetas artesanales, funkomacetas, decoración, figuras coleccionables, macetas personalizadas">
+    <meta name="author" content="El Jardín de las Macetas">
+    <meta name="robots" content="index, follow">
+
+    <link rel="canonical" href="{{ url()->current() }}">
+
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="@yield('title', 'El Jardín de las Macetas - Catálogo')">
+    <meta property="og:description" content="Catálogo de El Jardín de las Macetas - Figuras Funko Pop convertidas en macetas artesanales">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:site_name" content="El Jardín de las Macetas">
+    <meta property="og:locale" content="es_MX">
+    <meta property="og:image" content="{{ asset('images/og-image.jpg') }}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="@yield('title', 'El Jardín de las Macetas - Catálogo')">
+    <meta name="twitter:description" content="Catálogo de El Jardín de las Macetas - Figuras Funko Pop convertidas en macetas artesanales">
+    <meta name="twitter:image" content="{{ asset('images/og-image.jpg') }}">
+
+    <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('icon.png') }}">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -41,6 +65,7 @@
         .pb-safe { padding-bottom: max(env(safe-area-inset-bottom), 0.5rem); }
     </style>
     @stack('styles')
+    @yield('seo')
 </head>
 <body class="bg-gray-50 font-sans antialiased">
     {{-- Compact Header --}}
@@ -51,11 +76,11 @@
                     <div class="w-9 h-9 bg-gradient-to-br from-primary to-secondary rounded-lg flex items-center justify-center">
                         <span class="text-white font-bold text-sm">F</span>
                     </div>
-                    <span class="font-bold text-lg text-dark hidden sm:inline">Funkomacetas</span>
+                    <span class="font-bold text-lg text-dark hidden sm:inline">El Jardín de las Macetas</span>
                 </a>
 
                 <div class="flex items-center gap-2">
-                    <a href="https://wa.me/?text={{ urlencode('¡Mira mi catálogo de Funkomacetas! 🎉 ' . route('catalog')) }}"
+                    <a href="https://wa.me/?text={{ urlencode('¡Mira mi catálogo de El Jardín de las Macetas! 🎉 ' . route('catalog')) }}"
                        target="_blank"
                        class="bg-green-500 hover:bg-green-600 text-white px-3 py-1.5 rounded-full flex items-center gap-1.5 text-sm font-medium transition-colors">
                         <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
@@ -73,7 +98,7 @@
     <footer class="bg-dark text-white py-6 mt-8 hidden md:block">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center">
-                <p class="text-gray-400">© {{ date('Y') }} Funkomacetas. Todos los derechos reservados.</p>
+                <p class="text-gray-400">© {{ date('Y') }} El Jardín de las Macetas. Todos los derechos reservados.</p>
                 <p class="text-gray-500 text-sm mt-2">Figuras Funko Pop convertidas en macetas artesanales</p>
             </div>
         </div>

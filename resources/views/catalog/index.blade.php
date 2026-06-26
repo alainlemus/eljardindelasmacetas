@@ -1,13 +1,30 @@
 @extends('layouts.catalog')
 
-@section('title', 'Catálogo de Funkomacetas')
+@section('title', 'Catálogo de El Jardín de las Macetas')
+
+@section('seo')
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "El Jardín de las Macetas",
+    "description": "Catálogo de El Jardín de las Macetas - Figuras Funko Pop convertidas en macetas artesanales",
+    "url": "{{ route('catalog') }}",
+    "potentialAction": {
+        "@type": "SearchAction",
+        "target": "{{ route('catalog') }}?search={search_term_string}",
+        "query-input": "required name=search_term_string"
+    }
+}
+</script>
+@endsection
 
 @section('content')
 <div class="min-h-screen pb-20 md:pb-0">
     {{-- Header --}}
     <div class="bg-gradient-to-r from-primary to-purple-700 text-white py-6 px-4">
         <div class="max-w-7xl mx-auto">
-            <h1 class="text-2xl font-bold mb-2">🎉 Catálogo Funkomacetas</h1>
+            <h1 class="text-2xl font-bold mb-2">🎉 Catálogo El Jardín de las Macetas</h1>
             <p class="text-white text-opacity-80 text-sm">Figuras Funko Pop convertidas en macetas artesanales</p>
         </div>
     </div>
@@ -173,7 +190,7 @@
 
 {{-- Fixed WhatsApp Share Button - Mobile --}}
 <div class="fixed bottom-0 left-0 right-0 bg-primary md:hidden z-50">
-    <a href="https://wa.me/?text={{ urlencode('¡Mira el catálogo completo de Funkomacetas! 🎉 ' . route('catalog')) }}"
+    <a href="https://wa.me/?text={{ urlencode('¡Mira el catálogo completo de El Jardín de las Macetas! 🎉 ' . route('catalog')) }}"
        target="_blank"
        class="flex items-center justify-center gap-2 py-3 text-white font-semibold">
         <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">

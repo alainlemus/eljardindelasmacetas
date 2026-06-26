@@ -1,6 +1,40 @@
 @extends('layouts.catalog')
 
-@section('title', $product->name . ' - Funkomacetas')
+@section('title', $product->name . ' - El Jardín de las Macetas')
+
+@section('seo')
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": "{{ $product->name }}",
+    "description": "{{ $product->description ?? 'Figuras Funko Pop convertidas en macetas artesanales' }}",
+    "sku": "{{ $product->sku }}",
+    "image": "{{ $product->image }}",
+    "url": "{{ route('catalog.product', $product->slug) }}",
+    "offers": {
+        "@type": "Offer",
+        "price": "{{ $product->price }}",
+        "priceCurrency": "MXN",
+        "availability": "{{ $product->stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock' }}",
+        "seller": {
+            "@type": "Organization",
+            "name": "El Jardín de las Macetas"
+        }
+    },
+    @if($product->category)
+    "category": "{{ $product->category->name }}",
+    @endif
+    @if($product->figure)
+    "additionalProperty": {
+        "@type": "PropertyValue",
+        "name": "Figura Funko Pop",
+        "value": "{{ $product->figure->name }}"
+    }
+    @endif
+}
+</script>
+@endsection
 
 @section('content')
 <div class="min-h-screen py-8">
