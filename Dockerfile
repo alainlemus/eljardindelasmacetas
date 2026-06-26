@@ -1,4 +1,4 @@
-FROM php:8.4-cli
+FROM php:8.4-fpm
 
 WORKDIR /var/www/html
 
@@ -13,6 +13,7 @@ RUN apt-get update && apt-get install -y \
     zip \
     unzip \
     nginx \
+    supervisor \
     && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip
 
 # Install Composer
@@ -28,11 +29,12 @@ RUN composer install --no-dev --optimize-autoloader --ignore-platform-reqs --no-
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache && \
     chmod -R 755 /var/www/html/storage /var/www/html/bootstrap/cache
 
-# Copy nginx config
-RUN mkdir -p /var/run/nginx && echo "daemon off;" >> /etc/nginx/nginx.conf
+# Copy nginx config (don't add daemon off again)
 COPY docker/nginx.conf /etc/nginx/sites-available/default
+
+# Copy supervisor config
+COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 EXPOSE 80
 
-# Start nginx and php
-CMD service nginx start && php -S 0.0.0.0:80 -t public
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
