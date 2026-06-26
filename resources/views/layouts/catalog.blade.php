@@ -35,8 +35,8 @@
         content="Catálogo de El Jardín de las Macetas - Figuras Funko Pop convertidas en macetas artesanales">
     <meta name="twitter:image" content="{{ asset('images/og-image.jpg') }}">
 
-    <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
-    <link rel="apple-touch-icon" href="{{ asset('icon.png') }}">
+    <link rel="icon" type="image/png" href="{{ asset('storage/favicon-96x96.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('storage/favicon-96x96.png') }}">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
