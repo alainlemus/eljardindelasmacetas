@@ -17,9 +17,9 @@ RUN apt-get update && apt-get install -y \
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-WORKDIR /var/www
+WORKDIR /var/www/html
 
-# Copy files
+# Copy application files
 COPY . .
 
 # Install deps without scripts to avoid package:discover issues
@@ -27,16 +27,17 @@ RUN composer install --no-dev --optimize-autoloader --ignore-platform-reqs --no-
 
 # Clear cache and set permissions
 RUN composer dump-autoload -o --no-dev && \
-    chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache && \
-    chmod -R 755 /var/www/storage /var/www/bootstrap/cache
+    chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache && \
+    chmod -R 755 /var/www/html/storage /var/www/html/bootstrap/cache
 
-# Nginx config
+# Configure nginx
 RUN mkdir -p /var/run/nginx && \
-    echo "daemon off;" >> /etc/nginx/nginx.conf && \
-    cp /var/www/docker/nginx.conf /etc/nginx/sites-available/default
+    echo "daemon off;" >> /etc/nginx/nginx.conf
+
+COPY docker/nginx.conf /etc/nginx/sites-available/default
 
 # Supervisor config
-COPY /var/www/docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 EXPOSE 80
 
