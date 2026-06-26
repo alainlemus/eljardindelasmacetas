@@ -1,6 +1,6 @@
 @extends('layouts.catalog')
 
-@section('title', $product->name . ' - Funkomacetas')
+@section('title', $product->name . ' - El Jardín de las Macetas')
 
 @section('content')
 <div class="min-h-screen py-8">
