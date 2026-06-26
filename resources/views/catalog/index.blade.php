@@ -2,23 +2,6 @@
 
 @section('title', 'Catálogo de El Jardín de las Macetas')
 
-@section('seo')
-<script type="application/ld+json">
-{
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    "name": "El Jardín de las Macetas",
-    "description": "Catálogo de El Jardín de las Macetas - Figuras Funko Pop convertidas en macetas artesanales",
-    "url": "{{ route('catalog') }}",
-    "potentialAction": {
-        "@type": "SearchAction",
-        "target": "{{ route('catalog') }}?search={search_term_string}",
-        "query-input": "required name=search_term_string"
-    }
-}
-</script>
-@endsection
-
 @section('content')
 <div class="min-h-screen pb-20 md:pb-0">
     {{-- Header --}}

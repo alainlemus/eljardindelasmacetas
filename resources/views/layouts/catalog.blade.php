@@ -65,7 +65,6 @@
         .pb-safe { padding-bottom: max(env(safe-area-inset-bottom), 0.5rem); }
     </style>
     @stack('styles')
-    @yield('seo')
 </head>
 <body class="bg-gray-50 font-sans antialiased">
     {{-- Compact Header --}}
