@@ -12,12 +12,12 @@ class FigureFactory extends Factory
 
     public function definition(): array
     {
-        $name = fake()->unique()->words(3, true);
+        $name = $this->faker->unique()->words(3, true);
         return [
             'name' => ucfirst($name),
             'slug' => Str::slug($name),
-            'description' => fake()->sentence(),
-            'sku' => 'FIG-' . fake()->unique()->numerify('###-####'),
+            'description' => $this->faker->sentence(),
+            'sku' => 'FIG-' . $this->faker->unique()->numerify('###-####'),
         ];
     }
 }
