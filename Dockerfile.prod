@@ -27,8 +27,7 @@ COPY . .
 RUN composer install --no-dev --optimize-autoloader --ignore-platform-reqs --no-scripts
 
 # Publicar assets de Filament
-RUN php artisan filament:install --assets && \
-    php artisan vendor:publish --tag=filament-assets --force && \
+RUN php artisan filament:upgrade && \
     php artisan storage:link
 
 # Permissions
