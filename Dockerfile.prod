@@ -26,6 +26,11 @@ COPY . .
 # Install deps
 RUN composer install --no-dev --optimize-autoloader --ignore-platform-reqs --no-scripts
 
+# Publicar assets de Filament
+RUN php artisan filament:install --assets && \
+    php artisan vendor:publish --tag=filament-assets --force && \
+    php artisan storage:link
+
 # Permissions
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache && \
     chmod -R 755 /var/www/html/storage /var/www/html/bootstrap/cache
