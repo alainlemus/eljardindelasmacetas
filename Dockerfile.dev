@@ -2,7 +2,7 @@ FROM php:8.4-fpm
 
 WORKDIR /var/www/html
 
-# Install system dependencies
+# Install system dependencies + Node.js
 RUN apt-get update && apt-get install -y \
     git \
     curl \
@@ -15,7 +15,9 @@ RUN apt-get update && apt-get install -y \
     unzip \
     nginx \
     supervisor \
-    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip intl
+    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip intl \
+    && curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
+    && apt-get install -y nodejs
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
@@ -23,8 +25,11 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Copy files
 COPY . .
 
-# Install deps (including dev dependencies)
+# Install PHP deps (including dev dependencies)
 RUN composer install --optimize-autoloader --ignore-platform-reqs --no-scripts
+
+# Install JS deps y compilar assets
+RUN npm ci && npm run build
 
 # Necesitamos un .env mínimo para que artisan funcione durante el build
 RUN cp .env.docker .env && \
