@@ -7,7 +7,9 @@ if [ -n "$APP_KEY" ]; then
     sed -i "s|^APP_KEY=.*|APP_KEY=$APP_KEY|" .env
 fi
 if [ -n "$APP_URL" ]; then
-    sed -i "s|^APP_URL=.*|APP_URL=$APP_URL|" .env
+    # Forzar https:// siempre
+    HTTPS_URL=$(echo "$APP_URL" | sed 's|^http://|https://|')
+    sed -i "s|^APP_URL=.*|APP_URL=$HTTPS_URL|" .env
 fi
 if [ -n "$DB_HOST" ]; then
     sed -i "s|^DB_HOST=.*|DB_HOST=$DB_HOST|" .env
