@@ -14,22 +14,22 @@ class FunkomacetaFactory extends Factory
 
     public function definition(): array
     {
-        $name = fake()->unique()->words(3, true);
+        $name = $this->faker->unique()->words(3, true);
         return [
             'name' => ucfirst($name) . ' Funkomaceta',
             'slug' => Str::slug($name) . '-funkomaceta',
-            'description' => fake()->paragraph(),
-            'price' => fake()->randomFloat(2, 15, 150),
-            'cost' => fake()->randomFloat(2, 5, 80),
-            'stock' => fake()->numberBetween(0, 100),
+            'description' => $this->faker->paragraph(),
+            'price' => $this->faker->randomFloat(2, 15, 150),
+            'cost' => $this->faker->randomFloat(2, 5, 80),
+            'stock' => $this->faker->numberBetween(0, 100),
             'min_stock' => 5,
-            'sku' => 'FUNK-' . fake()->unique()->numerify('###-####'),
-            'image' => fake()->imageUrl(400, 400, 'funko'),
+            'sku' => 'FUNK-' . $this->faker->unique()->numerify('###-####'),
+            'image' => $this->faker->imageUrl(400, 400, 'funko'),
             'images' => [],
             'is_active' => true,
-            'is_featured' => fake()->boolean(20),
+            'is_featured' => $this->faker->boolean(20),
             'category_id' => Category::factory(),
-            'figure_id' => fake()->boolean(70) ? Figure::factory() : null,
+            'figure_id' => $this->faker->boolean(70) ? Figure::factory() : null,
         ];
     }
 
@@ -50,7 +50,7 @@ class FunkomacetaFactory extends Factory
     public function lowStock(): static
     {
         return $this->state(fn (array $attributes) => [
-            'stock' => fake()->numberBetween(1, 5),
+            'stock' => $this->faker->numberBetween(1, 5),
             'min_stock' => 10,
         ]);
     }
