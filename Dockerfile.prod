@@ -35,8 +35,9 @@ RUN npm ci && npm run build
 RUN cp .env.docker .env && \
     php artisan key:generate --force
 
-# Publicar assets de Filament
-RUN php artisan filament:upgrade
+# Publicar assets de Filament y Livewire
+RUN php artisan filament:upgrade && \
+    php artisan vendor:publish --tag=livewire:assets --force
 
 # Limpiar la key generada (se sobreescribirá en runtime)
 RUN php artisan config:clear
