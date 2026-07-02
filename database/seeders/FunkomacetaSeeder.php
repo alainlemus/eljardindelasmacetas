@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use App\Models\Category;
 use App\Models\Figure;
-use App\Models\Funkomaceta;
 use Illuminate\Database\Seeder;
 
 class FunkomacetaSeeder extends Seeder
@@ -38,7 +37,5 @@ class FunkomacetaSeeder extends Seeder
         foreach ($figures as $figure) {
             Figure::create($figure);
         }
-
-        Funkomaceta::factory()->count(30)->create();
     }
 }
