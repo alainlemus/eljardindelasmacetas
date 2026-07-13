@@ -20,11 +20,14 @@ Route::prefix('auth')->group(function () {
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('categories', CategoryController::class);
+    Route::patch('categories/{category}/toggle-active', [CategoryController::class, 'toggleActive']);
     Route::apiResource('figures', FigureController::class);
+    Route::patch('figures/{figure}/toggle-active', [FigureController::class, 'toggleActive']);
     Route::apiResource('products', ProductController::class)->except(['index', 'show']);
     Route::get('products', [ProductController::class, 'index']);
     Route::get('products/{product}', [ProductController::class, 'show']);
     Route::patch('products/{product}/stock', [ProductController::class, 'updateStock']);
+    Route::patch('products/{product}/toggle-active', [ProductController::class, 'toggleActive']);
 
     Route::post('upload/image', [ImageUploadController::class, 'upload']);
     Route::post('upload/images', [ImageUploadController::class, 'uploadMultiple']);

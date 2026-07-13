@@ -16,6 +16,11 @@ class Figure extends Model
         'slug',
         'description',
         'sku',
+        'is_active',
+    ];
+
+    protected $casts = [
+        'is_active' => 'boolean',
     ];
 
     protected static function boot(): void
@@ -38,5 +43,10 @@ class Figure extends Model
     public function funkomacetas(): HasMany
     {
         return $this->hasMany(Funkomaceta::class);
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
     }
 }

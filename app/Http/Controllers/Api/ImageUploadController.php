@@ -13,7 +13,7 @@ class ImageUploadController extends Controller
     public function upload(Request $request): JsonResponse
     {
         $request->validate([
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+            'image' => 'required|file|mimes:jpeg,jpg,png,gif,webp,heic,heif|max:10240',
         ]);
 
         $path = $request->file('image')->store('funkomacetas', 'public');
@@ -27,8 +27,8 @@ class ImageUploadController extends Controller
     public function uploadMultiple(Request $request): JsonResponse
     {
         $request->validate([
-            'images' => 'required|array',
-            'images.*' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+            'images' => 'required|array|min:1',
+            'images.*' => 'required|file|mimes:jpeg,jpg,png,gif,webp,heic,heif|max:10240',
         ]);
 
         $paths = [];

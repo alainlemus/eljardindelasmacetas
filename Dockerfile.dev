@@ -43,8 +43,9 @@ RUN php artisan filament:upgrade && \
 RUN php artisan config:clear
 
 # Permissions
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache && \
-    chmod -R 755 /var/www/html/storage /var/www/html/bootstrap/cache
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/public && \
+    chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache && \
+    chmod -R 755 /var/www/html/public
 
 # Copy nginx config
 COPY docker/nginx.conf /etc/nginx/sites-available/default

@@ -60,8 +60,8 @@ class ProductController extends Controller
             'stock' => $request->stock,
             'min_stock' => $request->min_stock ?? 5,
             'sku' => $request->sku,
-            'image' => $request->image,
-            'images' => $request->images ?? [],
+            'image' => $this->extractStoragePath($request->image),
+            'images' => $this->extractStoragePaths($request->images ?? []),
             'is_active' => $request->is_active ?? true,
             'is_featured' => $request->is_featured ?? false,
             'category_id' => $request->category_id,
@@ -109,6 +109,14 @@ class ProductController extends Controller
             'category_id', 'figure_id'
         ]));
 
+        if ($request->has('image')) {
+            $product->image = $this->extractStoragePath($request->image);
+        }
+        if ($request->has('images')) {
+            $product->images = $this->extractStoragePaths($request->images ?? []);
+        }
+        $product->save();
+
         if ($request->has('name')) {
             $product->slug = \Illuminate\Support\Str::slug($request->name);
             $product->save();
@@ -145,5 +153,36 @@ class ProductController extends Controller
             'data' => new FunkomacetaResource($product),
             'message' => 'Stock actualizado correctamente',
         ]);
+    }
+
+    public function toggleActive(Funkomaceta $product): JsonResponse
+    {
+        $product->update(['is_active' => !$product->is_active]);
+
+        return response()->json([
+            'data' => new FunkomacetaResource($product),
+            'message' => $product->is_active ? 'Producto activado' : 'Producto desactivado',
+        ]);
+    }
+
+    private function extractStoragePath(?string $value): ?string
+    {
+        if (!$value) {
+            return null;
+        }
+
+        if (preg_match('#/storage/(.+)$#', $value, $matches)) {
+            return $matches[1];
+        }
+
+        return $value;
+    }
+
+    private function extractStoragePaths(array $values): array
+    {
+        return array_values(array_filter(array_map(
+            fn ($v) => is_string($v) ? $this->extractStoragePath($v) : null,
+            $values
+        )));
     }
 }
