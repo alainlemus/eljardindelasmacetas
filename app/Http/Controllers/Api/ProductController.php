@@ -146,4 +146,14 @@ class ProductController extends Controller
             'message' => 'Stock actualizado correctamente',
         ]);
     }
+
+    public function toggleActive(Funkomaceta $product): JsonResponse
+    {
+        $product->update(['is_active' => !$product->is_active]);
+
+        return response()->json([
+            'data' => new FunkomacetaResource($product),
+            'message' => $product->is_active ? 'Producto activado' : 'Producto desactivado',
+        ]);
+    }
 }

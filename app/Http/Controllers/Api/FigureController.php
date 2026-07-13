@@ -24,6 +24,7 @@ class FigureController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'sku' => 'required|string|max:255|unique:figures,sku',
+            'is_active' => 'boolean',
         ]);
 
         $figure = Figure::create([
@@ -31,6 +32,7 @@ class FigureController extends Controller
             'slug' => \Illuminate\Support\Str::slug($request->name),
             'description' => $request->description,
             'sku' => $request->sku,
+            'is_active' => $request->is_active ?? true,
         ]);
 
         return response()->json([
@@ -54,18 +56,29 @@ class FigureController extends Controller
             'name' => 'sometimes|required|string|max:255',
             'description' => 'nullable|string',
             'sku' => 'sometimes|required|string|max:255|unique:figures,sku,' . $figure->id,
+            'is_active' => 'sometimes|boolean',
         ]);
 
-        $figure->update($request->only(['name', 'description', 'sku']));
+        $figure->update($request->only(['name', 'description', 'sku', 'is_active']));
 
         if ($request->has('name')) {
-            $figure->slug = \Illuminate\Support\Str::slug($request->name);
+            $figure->slug = \Illuminate\Support\Str::slug($figure->name);
             $figure->save();
         }
 
         return response()->json([
             'data' => $figure,
             'message' => 'Figura actualizada correctamente',
+        ]);
+    }
+
+    public function toggleActive(Figure $figure): JsonResponse
+    {
+        $figure->update(['is_active' => !$figure->is_active]);
+
+        return response()->json([
+            'data' => $figure,
+            'message' => $figure->is_active ? 'Figura activada' : 'Figura desactivada',
         ]);
     }
 
