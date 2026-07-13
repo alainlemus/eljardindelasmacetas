@@ -91,11 +91,13 @@ class FunkomacetaResource extends Resource
                 Forms\Components\FileUpload::make('image')
                     ->label('Imagen principal')
                     ->image()
+                    ->disk('public')
                     ->directory('funkomacetas'),
                 Forms\Components\FileUpload::make('images')
                     ->label('Imagenes adicionales')
                     ->multiple()
                     ->image()
+                    ->disk('public')
                     ->directory('funkomacetas'),
                 Forms\Components\Textarea::make('description')
                     ->label('Descripcion')
@@ -116,6 +118,7 @@ class FunkomacetaResource extends Resource
             ->columns([
                 Tables\Columns\ImageColumn::make('image')
                     ->label('Imagen')
+                    ->disk('public')
                     ->size(60),
                 Tables\Columns\TextColumn::make('name')
                     ->label('Nombre')
