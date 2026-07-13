@@ -28,6 +28,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('products/{product}', [ProductController::class, 'show']);
     Route::patch('products/{product}/stock', [ProductController::class, 'updateStock']);
     Route::patch('products/{product}/toggle-active', [ProductController::class, 'toggleActive']);
+    Route::post('products/{product}/sale', [ProductController::class, 'recordSale']);
+    Route::get('products/top-selling', [ProductController::class, 'topSelling']);
 
     Route::post('upload/image', [ImageUploadController::class, 'upload']);
     Route::post('upload/images', [ImageUploadController::class, 'uploadMultiple']);

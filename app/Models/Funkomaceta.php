@@ -26,6 +26,7 @@ class Funkomaceta extends Model
         'images',
         'is_active',
         'is_featured',
+        'sales_count',
         'category_id',
         'figure_id',
     ];
@@ -38,6 +39,7 @@ class Funkomaceta extends Model
         'images' => 'array',
         'is_active' => 'boolean',
         'is_featured' => 'boolean',
+        'sales_count' => 'integer',
     ];
 
     protected static function boot(): void
@@ -85,6 +87,11 @@ class Funkomaceta extends Model
     public function scopeFeatured($query)
     {
         return $query->where('is_featured', true);
+    }
+
+    public function scopeTopSelling($query, int $limit = 10)
+    {
+        return $query->orderByDesc('sales_count');
     }
 
     public function getIsLowStockAttribute(): bool
