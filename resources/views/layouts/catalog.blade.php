@@ -98,20 +98,24 @@
 
 <body class="bg-gray-50 font-sans antialiased">
     {{-- Compact Header --}}
-    <nav class="bg-white shadow-sm sticky top-0 z-50 safe-area-inset-top">
+    <nav class="bg-white shadow-sm sticky top-0 z-50 safe-area-inset-top border-b border-gray-100">
         <div class="max-w-7xl mx-auto px-4">
             <div class="flex justify-between items-center h-20">
-                <a href="{{ route('catalog') }}" class="flex items-center gap-2">
+                <a href="{{ route('catalog') }}" class="flex items-center gap-3">
                     @if (file_exists(public_path('storage/logo.png')))
-                        <img src="{{ asset('storage/logo.png') }}" alt="El Jardín de las Macetas"
-                            class="w-16 h-16 object-contain rounded-lg">
+                        <img src="{{ asset('images/logo.png') . '?v=' . filemtime(public_path('images/logo.png')) }}"
+                            alt="El Jardín de las Macetas"
+                            class="w-14 h-14 object-contain rounded-xl shadow-sm">
                     @else
                         <div
-                            class="w-9 h-9 bg-gradient-to-br from-primary to-secondary rounded-lg flex items-center justify-center">
-                            <span class="text-white font-bold text-sm">F</span>
+                            class="w-14 h-14 bg-gradient-to-br from-primary to-secondary rounded-xl flex items-center justify-center shadow-sm">
+                            <span class="text-white font-bold text-base">F</span>
                         </div>
                     @endif
-                    <span class="font-bold text-lg text-dark hidden sm:inline">El Jardín de las Macetas</span>
+                    <div class="flex flex-col">
+                        <span class="font-bold text-base sm:text-lg text-dark leading-tight">El Jardín</span>
+                        <span class="text-xs text-gray-500 leading-tight hidden sm:inline">de las Macetas</span>
+                    </div>
                 </a>
 
                 <div class="flex items-center gap-2">

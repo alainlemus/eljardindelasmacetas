@@ -5,10 +5,17 @@
 @section('content')
     <div class="min-h-screen pb-20 md:pb-0">
         {{-- Header --}}
-        <div class="bg-gradient-to-r from-primary to-purple-700 text-white py-12 px-4">
-            <div class="max-w-7xl mx-auto">
-                <h1 class="text-2xl font-bold mb-2">🎉 Catálogo El Jardín de las Macetas</h1>
-                <p class="text-white text-opacity-80 text-sm">Figuras Funko Pop convertidas en macetas artesanales</p>
+        <div class="bg-gradient-to-r from-primary to-purple-700 text-white py-10 px-4">
+            <div class="max-w-7xl mx-auto flex items-center gap-5">
+                <div class="bg-white rounded-2xl p-2 shadow-lg flex-shrink-0">
+                    <img src="{{ asset('images/logo.png') . '?v=' . filemtime(public_path('images/logo.png')) }}"
+                        alt="El Jardín de las Macetas"
+                        class="w-20 h-20 md:w-24 md:h-24 object-contain">
+                </div>
+                <div class="flex-1">
+                    <h1 class="text-2xl md:text-3xl font-bold mb-1">El Jardín de las Macetas</h1>
+                    <p class="text-white text-opacity-85 text-sm md:text-base">Figuras Funko Pop convertidas en macetas artesanales</p>
+                </div>
             </div>
         </div>
 
