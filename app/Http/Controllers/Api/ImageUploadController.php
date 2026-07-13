@@ -19,7 +19,7 @@ class ImageUploadController extends Controller
         $path = $request->file('image')->store('funkomacetas', 'public');
 
         return response()->json([
-            'url' => Storage::url($path),
+            'url' => $this->absoluteUrl($path),
             'path' => $path,
         ]);
     }
@@ -34,11 +34,16 @@ class ImageUploadController extends Controller
         $paths = [];
         foreach ($request->file('images') as $image) {
             $path = $image->store('funkomacetas', 'public');
-            $paths[] = Storage::url($path);
+            $paths[] = $this->absoluteUrl($path);
         }
 
         return response()->json([
             'urls' => $paths,
         ]);
+    }
+
+    private function absoluteUrl(string $path): string
+    {
+        return rtrim(config('app.url'), '/') . '/storage/' . ltrim($path, '/');
     }
 }

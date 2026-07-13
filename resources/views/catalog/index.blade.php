@@ -19,12 +19,24 @@
                     <h2 class="text-lg font-bold text-dark mb-3">🔥 Destacados</h2>
                     <div class="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4">
                         @foreach ($featured as $product)
+                            @php
+                                $productImages = array_filter([$product->image, ...($product->images ?? [])]);
+                            @endphp
                             <a href="{{ route('catalog.product', $product->slug) }}" class="flex-shrink-0 w-36">
                                 <div class="bg-white rounded-xl overflow-hidden shadow-md">
-                                    <div class="aspect-square bg-gray-100">
-                                        @if ($product->image)
-                                            <img src="{{ $product->image }}" alt="{{ $product->name }}"
-                                                class="w-full h-full object-cover">
+                                    <div class="aspect-square bg-gray-100 relative overflow-hidden">
+                                        @if (count($productImages) > 0)
+                                            <div class="flex overflow-x-auto snap-x snap-mandatory h-full" style="scrollbar-width: none;">
+                                                @foreach ($productImages as $img)
+                                                    <img src="{{ \Storage::url($img) }}" alt="{{ $product->name }}"
+                                                        class="w-full h-full object-cover flex-shrink-0 snap-start">
+                                                @endforeach
+                                            </div>
+                                            @if (count($productImages) > 1)
+                                                <span class="absolute bottom-1 right-1 bg-black/60 text-white text-[10px] px-1.5 py-0.5 rounded font-medium">
+                                                    {{ count($productImages) }} 📷
+                                                </span>
+                                            @endif
                                         @else
                                             <div class="w-full h-full flex items-center justify-center text-gray-400">
                                                 <span class="text-3xl">📦</span>
@@ -101,12 +113,24 @@
                 @if ($products->count() > 0)
                     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4">
                         @foreach ($products as $product)
+                            @php
+                                $productImages = array_filter([$product->image, ...($product->images ?? [])]);
+                            @endphp
                             <div class="bg-white rounded-xl shadow-sm overflow-hidden">
                                 <a href="{{ route('catalog.product', $product->slug) }}">
                                     <div class="aspect-square bg-gray-100 relative overflow-hidden">
-                                        @if ($product->image)
-                                            <img src="{{ $product->image }}" alt="{{ $product->name }}"
-                                                class="w-full h-full object-cover">
+                                        @if (count($productImages) > 0)
+                                            <div class="flex overflow-x-auto snap-x snap-mandatory h-full" style="scrollbar-width: none;">
+                                                @foreach ($productImages as $img)
+                                                    <img src="{{ \Storage::url($img) }}" alt="{{ $product->name }}"
+                                                        class="w-full h-full object-cover flex-shrink-0 snap-start">
+                                                @endforeach
+                                            </div>
+                                            @if (count($productImages) > 1)
+                                                <span class="absolute bottom-1.5 right-1.5 bg-black/60 text-white text-xs px-1.5 py-0.5 rounded font-medium">
+                                                    {{ count($productImages) }} 📷
+                                                </span>
+                                            @endif
                                         @else
                                             <div class="w-full h-full flex items-center justify-center text-gray-300">
                                                 <span class="text-4xl">📦</span>

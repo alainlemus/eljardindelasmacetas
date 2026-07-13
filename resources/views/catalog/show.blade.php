@@ -17,12 +17,19 @@
             </ol>
         </nav>
 
+        @php
+            $allImages = array_filter([
+                $product->image,
+                ...($product->images ?? []),
+            ]);
+        @endphp
+
         <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
             <div class="grid md:grid-cols-2 gap-8 p-6 md:p-8">
                 <div class="relative">
                     <div class="aspect-square bg-gray-100 rounded-xl overflow-hidden">
-                        @if($product->image)
-                        <img src="{{ $product->image }}" alt="{{ $product->name }}"
+                        @if(count($allImages) > 0)
+                        <img src="{{ \Storage::url($product->image) }}" alt="{{ $product->name }}"
                              class="w-full h-full object-cover" id="mainImage">
                         @else
                         <div class="w-full h-full flex items-center justify-center text-gray-400">
@@ -34,9 +41,26 @@
                         @endif
                     </div>
                     @if($product->is_featured)
-                    <span class="absolute top-4 left-4 bg-accent text-white text-sm font-bold px-3 py-1 rounded-full">
+                    <span class="absolute top-4 left-4 bg-accent text-white text-sm font-bold px-3 py-1 rounded-full z-10">
                         ★ Destacado
                     </span>
+                    @endif
+
+                    @if(count($allImages) > 1)
+                    <div class="mt-3 flex gap-2 overflow-x-auto pb-1" id="thumbnailGallery">
+                        @foreach($allImages as $idx => $img)
+                        <button type="button"
+                            class="flex-shrink-0 w-16 h-16 md:w-20 md:h-20 rounded-lg overflow-hidden border-2 transition-all {{ $idx === 0 ? 'border-primary' : 'border-transparent hover:border-gray-300' }}"
+                            data-image-url="{{ \Storage::url($img) }}"
+                            onclick="changeMainImage(this)">
+                            <img src="{{ \Storage::url($img) }}" alt="Foto {{ $idx + 1 }}"
+                                class="w-full h-full object-cover">
+                        </button>
+                        @endforeach
+                    </div>
+                    <div class="mt-2 text-xs text-gray-500 text-center">
+                        {{ count($allImages) }} foto{{ count($allImages) === 1 ? '' : 's' }} — toca una miniatura para cambiar
+                    </div>
                     @endif
                 </div>
 
@@ -156,4 +180,28 @@
     </a>
 </div>
 @endif
+
+<script>
+function changeMainImage(btn) {
+    const mainImage = document.getElementById('mainImage');
+    const newUrl = btn.dataset.imageUrl;
+    if (mainImage && newUrl) {
+        mainImage.style.opacity = '0';
+        setTimeout(() => {
+            mainImage.src = newUrl;
+            mainImage.style.opacity = '1';
+        }, 150);
+    }
+    document.querySelectorAll('.thumb-btn').forEach(b => {
+        b.classList.remove('border-primary');
+        b.classList.add('border-transparent');
+    });
+    btn.classList.remove('border-transparent');
+    btn.classList.add('border-primary');
+}
+
+document.querySelectorAll('.thumb-btn').forEach(btn => {
+    btn.addEventListener('click', () => changeMainImage(btn));
+});
+</script>
 @endsection

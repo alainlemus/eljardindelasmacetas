@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\FunkomacetaResource;
 use App\Models\Funkomaceta;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -27,7 +28,9 @@ class ProductController extends Controller
 
         $products = $query->paginate($request->get('per_page', 15));
 
-        return response()->json($products);
+        return response()->json(
+            $products->through(fn ($product) => new FunkomacetaResource($product))
+        );
     }
 
     public function store(Request $request): JsonResponse
@@ -68,7 +71,7 @@ class ProductController extends Controller
         $funkomaceta->load(['category', 'figure']);
 
         return response()->json([
-            'data' => $funkomaceta,
+            'data' => new FunkomacetaResource($funkomaceta),
             'message' => 'Producto creado correctamente',
         ], 201);
     }
@@ -78,7 +81,7 @@ class ProductController extends Controller
         $product->load(['category', 'figure']);
 
         return response()->json([
-            'data' => $product,
+            'data' => new FunkomacetaResource($product),
         ]);
     }
 
@@ -114,7 +117,7 @@ class ProductController extends Controller
         $product->load(['category', 'figure']);
 
         return response()->json([
-            'data' => $product,
+            'data' => new FunkomacetaResource($product),
             'message' => 'Producto actualizado correctamente',
         ]);
     }
@@ -139,7 +142,7 @@ class ProductController extends Controller
         ]);
 
         return response()->json([
-            'data' => $product,
+            'data' => new FunkomacetaResource($product),
             'message' => 'Stock actualizado correctamente',
         ]);
     }
