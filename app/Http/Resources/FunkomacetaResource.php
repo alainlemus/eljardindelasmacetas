@@ -28,6 +28,7 @@ class FunkomacetaResource extends JsonResource
                 ->map(fn ($path) => $this->absoluteUrl($path))
                 ->all(),
             'is_low_stock' => $this->is_low_stock,
+            'sales_count' => $this->sales_count ?? 0,
             'formatted_price' => $this->formatted_price,
             'category' => $this->whenLoaded('category'),
             'figure' => $this->whenLoaded('figure'),

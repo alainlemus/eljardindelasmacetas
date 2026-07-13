@@ -165,6 +165,35 @@ class ProductController extends Controller
         ]);
     }
 
+    public function recordSale(Request $request, Funkomaceta $product): JsonResponse
+    {
+        $request->validate([
+            'quantity' => 'nullable|integer|min:1',
+        ]);
+
+        $quantity = $request->quantity ?? 1;
+
+        $product->increment('sales_count', $quantity);
+
+        return response()->json([
+            'data' => new FunkomacetaResource($product->fresh()),
+            'message' => "Venta registrada: +{$quantity}",
+        ]);
+    }
+
+    public function topSelling(Request $request): JsonResponse
+    {
+        $limit = $request->get('limit', 5);
+        $products = Funkomaceta::active()
+            ->topSelling($limit)
+            ->with(['category', 'figure'])
+            ->get();
+
+        return response()->json([
+            'data' => FunkomacetaResource::collection($products),
+        ]);
+    }
+
     private function extractStoragePath(?string $value): ?string
     {
         if (!$value) {

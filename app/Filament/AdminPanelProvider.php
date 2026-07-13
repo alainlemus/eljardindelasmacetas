@@ -17,6 +17,10 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
+            ->brandName('El Jardín de las Macetas')
+            ->brandLogo(asset('images/logo.png'))
+            ->brandLogoHeight('3rem')
+            ->favicon(asset('images/logo.png'))
             ->colors([
                 'primary' => '#6C5CE7',
                 'secondary' => '#00CEC9',
@@ -25,6 +29,7 @@ class AdminPanelProvider extends PanelProvider
                 'success' => '#00B894',
                 'warning' => '#FDCB6E',
             ])
+            ->darkMode(true)
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([
