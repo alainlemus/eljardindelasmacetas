@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\FunkomacetaResource;
 use App\Models\Funkomaceta;
 use App\Models\Category;
 use Illuminate\Http\JsonResponse;
@@ -32,7 +33,7 @@ class PublicCatalogController extends Controller
         return response()->json([
             'data' => [
                 'categories' => $categories,
-                'featured' => $featured,
+                'featured' => FunkomacetaResource::collection($featured),
                 'total_products' => $totalProducts,
             ],
         ]);
@@ -47,7 +48,9 @@ class PublicCatalogController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate(20);
 
-        return response()->json($products);
+        return response()->json(
+            $products->through(fn ($product) => new FunkomacetaResource($product))
+        );
     }
 
     public function product(int $id): JsonResponse
@@ -62,7 +65,7 @@ class PublicCatalogController extends Controller
         }
 
         return response()->json([
-            'data' => $product,
+            'data' => new FunkomacetaResource($product),
         ]);
     }
 }
