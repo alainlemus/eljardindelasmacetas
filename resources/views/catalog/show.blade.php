@@ -5,15 +5,15 @@
 @section('content')
 <div class="min-h-screen py-8">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <nav class="mb-6">
-            <ol class="flex items-center gap-2 text-sm">
-                <li><a href="{{ route('catalog') }}" class="text-primary hover:underline">Catálogo</a></li>
-                <li class="text-gray-400">/</li>
+        <nav class="mb-6" aria-label="Breadcrumb">
+            <ol class="flex items-center gap-2 text-sm flex-wrap">
+                <li><a href="{{ route('catalog') }}" class="text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded">Catálogo</a></li>
+                <li class="text-gray-400" aria-hidden="true">/</li>
                 @if($product->category)
-                <li><a href="{{ route('catalog', ['category' => $product->category->slug]) }}" class="text-primary hover:underline">{{ $product->category->name }}</a></li>
-                <li class="text-gray-400">/</li>
+                <li><a href="{{ route('catalog', ['category' => $product->category->slug]) }}" class="text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded">{{ $product->category->name }}</a></li>
+                <li class="text-gray-400" aria-hidden="true">/</li>
                 @endif
-                <li class="text-gray-600">{{ $product->name }}</li>
+                <li class="text-gray-600 truncate max-w-[200px]" aria-current="page">{{ $product->name }}</li>
             </ol>
         </nav>
 
@@ -33,7 +33,7 @@
                              class="w-full h-full object-cover" id="mainImage">
                         @else
                         <div class="w-full h-full flex items-center justify-center text-gray-400">
-                            <svg class="w-24 h-24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-24 h-24" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                       d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                             </svg>
@@ -41,8 +41,11 @@
                         @endif
                     </div>
                     @if($product->is_featured)
-                    <span class="absolute top-4 left-4 bg-accent text-white text-sm font-bold px-3 py-1 rounded-full z-10">
-                        ★ Destacado
+                    <span class="absolute top-4 left-4 flex items-center gap-1 bg-accent text-white text-sm font-bold px-3 py-1 rounded-full z-10">
+                        <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.958a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.367 2.446a1 1 0 00-.363 1.118l1.287 3.957c.3.922-.755 1.688-1.538 1.118l-3.367-2.446a1 1 0 00-1.176 0l-3.367 2.446c-.783.57-1.838-.196-1.538-1.118l1.287-3.957a1 1 0 00-.363-1.118L2.063 9.385c-.784-.57-.38-1.81.588-1.81h4.163a1 1 0 00.95-.69l1.285-3.958z" />
+                        </svg>
+                        Destacado
                     </span>
                     @endif
 
@@ -50,10 +53,11 @@
                     <div class="mt-3 flex gap-2 overflow-x-auto pb-1" id="thumbnailGallery">
                         @foreach($allImages as $idx => $img)
                         <button type="button"
-                            class="flex-shrink-0 w-16 h-16 md:w-20 md:h-20 rounded-lg overflow-hidden border-2 transition-all {{ $idx === 0 ? 'border-primary' : 'border-transparent hover:border-gray-300' }}"
+                            class="thumb-btn flex-shrink-0 w-16 h-16 md:w-20 md:h-20 rounded-lg overflow-hidden border-2 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 {{ $idx === 0 ? 'border-primary' : 'border-transparent hover:border-gray-300' }}"
                             data-image-url="{{ \Storage::url($img) }}"
-                            onclick="changeMainImage(this)">
-                            <img src="{{ \Storage::url($img) }}" alt="Foto {{ $idx + 1 }}"
+                            aria-label="Ver foto {{ $idx + 1 }} de {{ count($allImages) }}"
+                            aria-current="{{ $idx === 0 ? 'true' : 'false' }}">
+                            <img src="{{ \Storage::url($img) }}" alt="" aria-hidden="true" loading="lazy"
                                 class="w-full h-full object-cover">
                         </button>
                         @endforeach
@@ -72,9 +76,9 @@
                     <p class="text-gray-500 text-sm mb-4">SKU: {{ $product->sku }}</p>
 
                     <div class="mb-6">
-                        <span class="text-4xl font-bold text-primary">${{ number_format($product->price, 2) }}</span>
+                        <span class="text-4xl font-bold text-primary tabular-nums">${{ number_format($product->price, 2) }}</span>
                         @if($product->cost && $product->cost > 0)
-                        <span class="text-gray-400 line-through ml-2">${{ number_format($product->cost, 2) }}</span>
+                        <span class="text-gray-400 line-through ml-2 tabular-nums">${{ number_format($product->cost, 2) }}</span>
                         @endif
                     </div>
 
@@ -117,8 +121,8 @@
                         @if($product->stock > 0)
                         <a href="https://wa.me/?text={{ urlencode('¡Hola! Quiero comprar esta Funkomaceta! 🎉\n\n' . $product->name . '\n💰 Precio: $' . number_format($product->price, 2) . '\n📦 Stock: ' . $product->stock . '\n🔗 ' . route('catalog.product', $product->slug)) }}"
                            target="_blank"
-                           class="w-full bg-green-500 hover:bg-green-600 text-white py-4 rounded-xl flex items-center justify-center gap-3 transition-colors text-lg font-semibold">
-                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                           class="w-full bg-green-500 hover:bg-green-600 text-white py-4 rounded-xl flex items-center justify-center gap-3 transition-colors text-lg font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2">
+                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                 <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
                             </svg>
                             Comprar por WhatsApp
@@ -127,7 +131,7 @@
 
                         <a href="https://wa.me/?text={{ urlencode('¡Mira esta Funkomaceta! 🎉 ' . $product->name . '\n💰 Precio: $' . number_format($product->price, 2) . '\n🔗 ' . route('catalog.product', $product->slug)) }}"
                            target="_blank"
-                           class="w-full border-2 border-primary text-primary hover:bg-primary hover:text-white py-4 rounded-xl flex items-center justify-center gap-3 transition-colors text-lg font-semibold">
+                           class="w-full border-2 border-primary text-primary hover:bg-primary hover:text-white py-4 rounded-xl flex items-center justify-center gap-3 transition-colors text-lg font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                       d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
@@ -144,20 +148,24 @@
             <h2 class="text-xl md:text-2xl font-bold text-dark mb-4 md:mb-6">Productos Relacionados</h2>
             <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 md:gap-6">
                 @foreach($relatedProducts as $related)
-                <a href="{{ route('catalog.product', $related->slug) }}" class="bg-white rounded-xl shadow-sm overflow-hidden group">
-                    <div class="aspect-square bg-gray-100">
+                <a href="{{ route('catalog.product', $related->slug) }}"
+                    class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden group transition-all hover:shadow-lg hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
+                    <div class="aspect-square bg-gray-100 overflow-hidden">
                         @if($related->image)
-                        <img src="{{ $related->image }}" alt="{{ $related->name }}"
-                             class="w-full h-full object-cover transition-transform group-hover:scale-110">
+                        <img src="{{ $related->image }}" alt="{{ $related->name }}" loading="lazy" decoding="async"
+                             class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">
                         @else
                         <div class="w-full h-full flex items-center justify-center text-gray-300">
-                            <span class="text-4xl">📦</span>
+                            <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                    d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9" />
+                            </svg>
                         </div>
                         @endif
                     </div>
                     <div class="p-3 md:p-4">
                         <h3 class="font-semibold text-dark text-sm truncate">{{ $related->name }}</h3>
-                        <p class="text-primary font-bold">${{ number_format($related->price, 2) }}</p>
+                        <p class="text-primary font-bold tabular-nums">${{ number_format($related->price, 2) }}</p>
                     </div>
                 </a>
                 @endforeach
@@ -172,8 +180,8 @@
 <div class="fixed bottom-0 left-0 right-0 bg-primary md:hidden z-50 pb-safe">
     <a href="https://wa.me/?text={{ urlencode('¡Hola! Quiero comprar esta Funkomaceta! 🎉\n\n' . $product->name . '\n💰 Precio: $' . number_format($product->price, 2) . '\n📦 Stock: ' . $product->stock . '\n🔗 ' . route('catalog.product', $product->slug)) }}"
        target="_blank"
-       class="flex items-center justify-center gap-2 py-4 text-white font-semibold text-base">
-        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+       class="flex items-center justify-center gap-2 py-4 text-white font-semibold text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-inset">
+        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
         </svg>
         Comprar por WhatsApp
@@ -186,6 +194,7 @@ function changeMainImage(btn) {
     const mainImage = document.getElementById('mainImage');
     const newUrl = btn.dataset.imageUrl;
     if (mainImage && newUrl) {
+        mainImage.style.transition = 'opacity 150ms ease';
         mainImage.style.opacity = '0';
         setTimeout(() => {
             mainImage.src = newUrl;
@@ -195,9 +204,11 @@ function changeMainImage(btn) {
     document.querySelectorAll('.thumb-btn').forEach(b => {
         b.classList.remove('border-primary');
         b.classList.add('border-transparent');
+        b.setAttribute('aria-current', 'false');
     });
     btn.classList.remove('border-transparent');
     btn.classList.add('border-primary');
+    btn.setAttribute('aria-current', 'true');
 }
 
 document.querySelectorAll('.thumb-btn').forEach(btn => {
