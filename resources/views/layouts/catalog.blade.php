@@ -104,8 +104,7 @@
                 <a href="{{ route('catalog') }}" class="flex items-center gap-3">
                     @if (file_exists(public_path('storage/logo.png')))
                         <img src="{{ asset('images/logo.png') . '?v=' . filemtime(public_path('images/logo.png')) }}"
-                            alt="El Jardín de las Macetas"
-                            class="w-14 h-14 object-contain rounded-xl shadow-sm">
+                            alt="El Jardín de las Macetas" class="w-14 h-14 object-contain rounded-xl shadow-sm">
                     @else
                         <div
                             class="w-14 h-14 bg-gradient-to-br from-primary to-secondary rounded-xl flex items-center justify-center shadow-sm">
@@ -138,7 +137,8 @@
     <footer class="bg-dark text-white py-6 mt-8 hidden md:block">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center">
-                <p class="text-gray-400">© {{ date('Y') }} El Jardín de las Macetas. Todos los derechos reservados.
+                <p class="text-gray-400">© {{ date('Y') }} El Jardín de las Macetas. Todos los derechos reservados
+                    2026.
                 </p>
                 <p class="text-gray-500 text-sm mt-2">Figuras Funko Pop convertidas en macetas artesanales</p>
             </div>
