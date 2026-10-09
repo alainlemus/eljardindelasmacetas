@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\FunkomacetaResource;
-use App\Models\Funkomaceta;
+use App\Http\Resources\FigureResource;
 use App\Models\Category;
+use App\Models\Figure;
 use Illuminate\Http\JsonResponse;
 
 class PublicCatalogController extends Controller
@@ -13,27 +13,26 @@ class PublicCatalogController extends Controller
     public function catalog(): JsonResponse
     {
         $categories = Category::active()
-            ->with(['funkomacetas' => function ($query) {
-                $query->active()->inStock();
+            ->withCount(['figures' => function ($query) {
+                $query->active();
             }])
-            ->whereHas('funkomacetas', function ($query) {
-                $query->active()->inStock();
+            ->whereHas('figures', function ($query) {
+                $query->active();
             })
             ->get();
 
-        $featured = Funkomaceta::active()
-            ->inStock()
+        $featured = Figure::active()
             ->featured()
-            ->with(['category', 'figure'])
+            ->with('category')
             ->limit(10)
             ->get();
 
-        $totalProducts = Funkomaceta::active()->inStock()->count();
+        $totalProducts = Figure::active()->count();
 
         return response()->json([
             'data' => [
                 'categories' => $categories,
-                'featured' => FunkomacetaResource::collection($featured),
+                'featured' => FigureResource::collection($featured),
                 'total_products' => $totalProducts,
             ],
         ]);
@@ -41,31 +40,26 @@ class PublicCatalogController extends Controller
 
     public function products(): JsonResponse
     {
-        $products = Funkomaceta::active()
-            ->inStock()
-            ->with(['category', 'figure'])
+        $figures = Figure::active()
+            ->with('category')
+            ->orderByRaw('stock > 0 desc')
             ->orderBy('is_featured', 'desc')
             ->orderBy('created_at', 'desc')
             ->paginate(20);
 
         return response()->json(
-            $products->through(fn ($product) => new FunkomacetaResource($product))
+            $figures->through(fn ($product) => new FigureResource($product))
         );
     }
 
     public function product(int $id): JsonResponse
     {
-        $product = Funkomaceta::with(['category', 'figure'])
+        $product = Figure::active()
+            ->with('category')
             ->findOrFail($id);
 
-        if (!$product->is_active) {
-            return response()->json([
-                'message' => 'Producto no disponible',
-            ], 404);
-        }
-
         return response()->json([
-            'data' => new FunkomacetaResource($product),
+            'data' => new FigureResource($product),
         ]);
     }
 }

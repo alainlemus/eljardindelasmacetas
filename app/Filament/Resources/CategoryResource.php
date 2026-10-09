@@ -6,8 +6,8 @@ use App\Filament\Resources\CategoryResource\Pages;
 use App\Models\Category;
 use Filament\Actions;
 use Filament\Forms;
-use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
+use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Support\Str;
@@ -45,8 +45,7 @@ class CategoryResource extends Resource
                     ->required()
                     ->maxLength(255)
                     ->live()
-                    ->afterStateUpdated(fn (Forms\Set $set, ?string $state) =>
-                        $set('slug', Str::slug($state))
+                    ->afterStateUpdated(fn (Forms\Set $set, ?string $state) => $set('slug', Str::slug($state))
                     ),
                 Forms\Components\TextInput::make('slug')
                     ->required()
@@ -72,9 +71,9 @@ class CategoryResource extends Resource
                 Tables\Columns\IconColumn::make('is_active')
                     ->label('Activa')
                     ->boolean(),
-                Tables\Columns\TextColumn::make('funkomacetas_count')
-                    ->label('Productos')
-                    ->counts('funkomacetas'),
+                Tables\Columns\TextColumn::make('figures_count')
+                    ->label('Figuras')
+                    ->counts('figures'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

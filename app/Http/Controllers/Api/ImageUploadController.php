@@ -3,10 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Funkomaceta;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 class ImageUploadController extends Controller
 {
@@ -44,6 +42,6 @@ class ImageUploadController extends Controller
 
     private function absoluteUrl(string $path): string
     {
-        return rtrim(config('app.url'), '/') . '/storage/' . ltrim($path, '/');
+        return rtrim(config('app.url'), '/').'/storage/'.ltrim($path, '/');
     }
 }

@@ -25,6 +25,13 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Copy files
 COPY . .
 
+# Versión del despliegue: commit, rama y fecha del build (se ven junto al número de
+# VERSION en el catálogo y el panel). Los build args GIT_COMMIT / GIT_BRANCH mandan
+# sobre lo que se lea de .git, que después se elimina de la imagen.
+ARG GIT_COMMIT=""
+ARG GIT_BRANCH=""
+RUN GIT_COMMIT="$GIT_COMMIT" GIT_BRANCH="$GIT_BRANCH" php docker/write-build-info.php && rm -rf .git
+
 # Install PHP deps (including dev dependencies)
 RUN composer install --optimize-autoloader --ignore-platform-reqs --no-scripts
 

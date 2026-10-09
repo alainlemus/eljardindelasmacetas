@@ -3,16 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
-use App\Models\Funkomaceta;
+use App\Models\Figure;
 use Illuminate\Http\Request;
 
 class CatalogController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Funkomaceta::active()
-            ->inStock()
-            ->with(['category', 'figure']);
+        $query = Figure::active()
+            ->with('category');
 
         if ($request->has('category') && $request->category) {
             $query->whereHas('category', function ($q) use ($request) {
@@ -21,63 +20,62 @@ class CatalogController extends Controller
         }
 
         if ($request->has('search') && $request->search) {
-            $query->where('name', 'like', '%' . $request->search . '%');
+            $query->where('name', 'like', '%'.addcslashes($request->search, '%_\\').'%');
         }
 
-        $products = $query->orderBy('is_featured', 'desc')
+        $figures = $query->orderByRaw('stock > 0 desc')
+            ->orderBy('is_featured', 'desc')
             ->orderBy('created_at', 'desc')
             ->paginate(20);
 
         $categories = Category::active()
-            ->whereHas('funkomacetas', function ($query) {
-                $query->active()->inStock();
+            ->whereHas('figures', function ($query) {
+                $query->active();
             })
             ->get();
 
-        $featured = Funkomaceta::active()
-            ->inStock()
+        $featured = Figure::active()
             ->featured()
-            ->with(['category', 'figure'])
+            ->with('category')
             ->limit(6)
             ->get();
 
-        return view('catalog.index', compact('products', 'categories', 'featured'));
+        return view('catalog.index', compact('figures', 'categories', 'featured'));
     }
 
     public function show(string $slug)
     {
-        $product = Funkomaceta::where('slug', $slug)
+        $figure = Figure::where('slug', $slug)
             ->active()
-            ->with(['category', 'figure'])
+            ->with('category')
             ->firstOrFail();
 
-        $relatedProducts = Funkomaceta::active()
-            ->inStock()
-            ->where('category_id', $product->category_id)
-            ->where('id', '!=', $product->id)
+        $relatedFigures = Figure::active()
+            ->where('category_id', $figure->category_id)
+            ->where('id', '!=', $figure->id)
             ->limit(4)
             ->get();
 
-        return view('catalog.show', compact('product', 'relatedProducts'));
+        return view('catalog.show', compact('figure', 'relatedFigures'));
     }
 
     public function share(Request $request)
     {
-        $token = $request->get('token');
-
-        $products = Funkomaceta::active()
-            ->inStock()
-            ->with(['category', 'figure'])
+        $figures = Figure::active()
+            ->with('category')
+            ->orderByRaw('stock > 0 desc')
             ->orderBy('is_featured', 'desc')
             ->paginate(20);
 
         $categories = Category::active()
-            ->whereHas('funkomacetas', function ($query) {
-                $query->active()->inStock();
+            ->whereHas('figures', function ($query) {
+                $query->active();
             })
             ->get();
 
-        return view('catalog.index', compact('products', 'categories'))
+        $featured = collect();
+
+        return view('catalog.index', compact('figures', 'categories', 'featured'))
             ->with('isShared', true);
     }
 }
