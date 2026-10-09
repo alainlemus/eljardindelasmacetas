@@ -12,6 +12,17 @@ a `main`, la GitHub Action `release.yml` crea la etiqueta `vX.Y.Z` y el Release 
 estas notas. Fuera de producción la versión se muestra como `vX.Y.Z-dev · commit`.
 El encabezado de cada sección debe ser exacto: `## [X.Y.Z] - AAAA-MM-DD`.
 
+## [Sin publicar]
+
+### Agregado
+- Fotos del catálogo del proveedor (PDF Kiwi Art) ya convertidas a WebP: 381 figuras con foto.
+- 12 personajes que estaban en el catálogo del proveedor y no en el Excel (Shrek, Skeletor, Cinamoroll, Zenitsu, Foxy, Haas, Boogie, Marcus Fenix, Doc, Homero arbusto, Snoopy Navidad XL y Nezuko Posket); quedan inactivos hasta ponerles precio.
+- Las fotos que se suben desde el panel o desde la app se convierten a WebP, se comprimen (lado mayor 1200 px), se corrige su orientación y se les quitan los metadatos.
+- Comando `php artisan figures:optimize-images` para convertir las fotos ya subidas.
+
+### Corregido
+- La imagen de Docker instalaba GD sin soporte de WebP ni JPEG.
+
 ## [1.0.0] - 2026-10-09
 
 ### Agregado

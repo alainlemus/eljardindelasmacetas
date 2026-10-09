@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\FigureResource\Pages;
 use App\Models\Figure;
+use App\Support\ImageOptimizer;
 use Filament\Actions;
 use Filament\Forms;
 use Filament\Resources\Resource;
@@ -11,6 +12,7 @@ use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Support\Str;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
 class FigureResource extends Resource
 {
@@ -85,13 +87,17 @@ class FigureResource extends Resource
                     ->label('Imagen principal')
                     ->image()
                     ->disk('public')
-                    ->directory('funkomacetas'),
+                    ->directory('funkomacetas')
+                    ->saveUploadedFileUsing(fn (TemporaryUploadedFile $file): string => ImageOptimizer::store($file))
+                    ->helperText('Se convierte a WebP y se comprime automáticamente.'),
                 Forms\Components\FileUpload::make('images')
                     ->label('Imagenes adicionales')
                     ->multiple()
                     ->image()
                     ->disk('public')
-                    ->directory('funkomacetas'),
+                    ->directory('funkomacetas')
+                    ->saveUploadedFileUsing(fn (TemporaryUploadedFile $file): string => ImageOptimizer::store($file))
+                    ->helperText('Se convierte a WebP y se comprime automáticamente.'),
                 Forms\Components\Textarea::make('description')
                     ->label('Descripcion')
                     ->rows(3)

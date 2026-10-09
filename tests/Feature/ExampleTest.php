@@ -5,7 +5,11 @@ namespace Tests\Feature;
 use App\Models\Category;
 use App\Models\Figure;
 use App\Models\User;
+use App\Support\ImageOptimizer;
+use Database\Seeders\CatalogSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class ExampleTest extends TestCase
@@ -73,5 +77,35 @@ class ExampleTest extends TestCase
 
         $this->getJson('/version.json')->assertOk()->assertJsonPath('version', $version);
         $this->get('/')->assertSee('v'.$version);
+    }
+
+    public function test_uploaded_images_are_converted_to_webp_and_compressed(): void
+    {
+        Storage::fake('public');
+        $admin = User::factory()->create(['is_admin' => true]);
+        $big = UploadedFile::fake()->image('foto.jpg', 3000, 2000);
+
+        $response = $this->actingAs($admin, 'sanctum')->postJson('/api/upload/image', ['image' => $big])->assertOk();
+
+        $path = $response->json('path');
+        $this->assertStringEndsWith('.webp', $path);
+        Storage::disk('public')->assertExists($path);
+
+        $info = getimagesizefromstring(Storage::disk('public')->get($path));
+        $this->assertSame('image/webp', $info['mime']);
+        $this->assertSame(ImageOptimizer::MAX_SIDE, max($info[0], $info[1]));
+    }
+
+    public function test_catalog_seeder_loads_images_and_is_idempotent(): void
+    {
+        Storage::fake('public');
+
+        $this->seed(CatalogSeeder::class);
+        $this->seed(CatalogSeeder::class);
+
+        $this->assertSame(585, Figure::count());
+        $withImage = Figure::whereNotNull('image')->count();
+        $this->assertGreaterThan(350, $withImage);
+        $this->assertStringEndsWith('.webp', Figure::whereNotNull('image')->first()->image);
     }
 }
