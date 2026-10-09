@@ -7,6 +7,9 @@ RUN apt-get update && apt-get install -y \
     git \
     curl \
     libpng-dev \
+    libjpeg-dev \
+    libwebp-dev \
+    libfreetype6-dev \
     libonig-dev \
     libxml2-dev \
     libzip-dev \
@@ -15,6 +18,7 @@ RUN apt-get update && apt-get install -y \
     unzip \
     nginx \
     supervisor \
+    && docker-php-ext-configure gd --with-jpeg --with-webp --with-freetype \
     && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip intl \
     && curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
     && apt-get install -y nodejs
@@ -24,6 +28,13 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # Copy files
 COPY . .
+
+# Versión del despliegue: commit, rama y fecha del build (se ven junto al número de
+# VERSION en el catálogo y el panel). Los build args GIT_COMMIT / GIT_BRANCH mandan
+# sobre lo que se lea de .git, que después se elimina de la imagen.
+ARG GIT_COMMIT=""
+ARG GIT_BRANCH=""
+RUN GIT_COMMIT="$GIT_COMMIT" GIT_BRANCH="$GIT_BRANCH" php docker/write-build-info.php && rm -rf .git
 
 # Install PHP deps (including dev dependencies)
 RUN composer install --optimize-autoloader --ignore-platform-reqs --no-scripts

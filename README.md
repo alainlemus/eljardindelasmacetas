@@ -56,3 +56,7 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+## Versionado
+
+El número vive en `VERSION` y la historia en `CHANGELOG.md` (semver). Antes de fusionar `develop` → `main`: sube `VERSION`, agrega su sección en `CHANGELOG.md` y haz commit "Versión X.Y.Z". Al llegar a `main`, la GitHub Action `release.yml` crea la etiqueta y el Release. Después de desplegar, `/version.json` debe mostrar el commit nuevo.

@@ -1,207 +1,111 @@
 @extends('layouts.catalog')
 
-@section('title', $product->name . ' - El Jardín de las Macetas')
+@section('title', $figure->name.' - El Jardín de las Macetas')
+@section('description', \Illuminate\Support\Str::limit($figure->description ?: $figure->name.' - maceta artesanal de El Jardín de las Macetas', 150))
+@if ($figure->image_url)
+    @section('og_image', str_starts_with($figure->image_url, 'http') ? $figure->image_url : url($figure->image_url))
+@endif
 
 @section('content')
-<div class="min-h-screen py-8">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <nav class="mb-6">
-            <ol class="flex items-center gap-2 text-sm">
-                <li><a href="{{ route('catalog') }}" class="text-primary hover:underline">Catálogo</a></li>
-                <li class="text-gray-400">/</li>
-                @if($product->category)
-                <li><a href="{{ route('catalog', ['category' => $product->category->slug]) }}" class="text-primary hover:underline">{{ $product->category->name }}</a></li>
-                <li class="text-gray-400">/</li>
+    @php($gallery = $figure->gallery)
+    <div class="mx-auto max-w-6xl px-4 pb-24 pt-6 md:pb-0">
+        <nav aria-label="Breadcrumb" class="mb-4 text-sm font-semibold">
+            <ol class="flex flex-wrap items-center gap-2 text-clay-800/60">
+                <li><a href="{{ route('catalog') }}" class="text-leaf-600 hover:underline">Catálogo</a></li>
+                @if ($figure->category)
+                    <li aria-hidden="true">/</li>
+                    <li><a href="{{ route('catalog', ['category' => $figure->category->slug]) }}" class="text-leaf-600 hover:underline">{{ $figure->category->name }}</a></li>
                 @endif
-                <li class="text-gray-600">{{ $product->name }}</li>
+                <li aria-hidden="true">/</li>
+                <li aria-current="page" class="truncate">{{ $figure->name }}</li>
             </ol>
         </nav>
 
-        @php
-            $allImages = array_filter([
-                $product->image,
-                ...($product->images ?? []),
-            ]);
-        @endphp
-
-        <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
-            <div class="grid md:grid-cols-2 gap-8 p-6 md:p-8">
-                <div class="relative">
-                    <div class="aspect-square bg-gray-100 rounded-xl overflow-hidden">
-                        @if(count($allImages) > 0)
-                        <img src="{{ \Storage::url($product->image) }}" alt="{{ $product->name }}"
-                             class="w-full h-full object-cover" id="mainImage">
-                        @else
-                        <div class="w-full h-full flex items-center justify-center text-gray-400">
-                            <svg class="w-24 h-24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                            </svg>
-                        </div>
-                        @endif
-                    </div>
-                    @if($product->is_featured)
-                    <span class="absolute top-4 left-4 bg-accent text-white text-sm font-bold px-3 py-1 rounded-full z-10">
-                        ★ Destacado
-                    </span>
+        <div class="grid gap-8 rounded-[2rem] border border-cream-200 bg-white p-4 shadow-sm md:grid-cols-2 md:p-8">
+            <div>
+                <div class="relative aspect-square overflow-hidden rounded-3xl bg-cream-100">
+                    @if ($gallery)
+                        <img id="mainImage" src="{{ $gallery[0] }}" alt="{{ $figure->name }}" class="h-full w-full object-cover transition-opacity duration-150">
+                    @else
+                        <div class="flex h-full items-center justify-center"><img src="{{ asset('images/logo.png') }}" alt="" class="h-1/2 w-1/2 object-contain opacity-30 grayscale"></div>
                     @endif
-
-                    @if(count($allImages) > 1)
-                    <div class="mt-3 flex gap-2 overflow-x-auto pb-1" id="thumbnailGallery">
-                        @foreach($allImages as $idx => $img)
-                        <button type="button"
-                            class="flex-shrink-0 w-16 h-16 md:w-20 md:h-20 rounded-lg overflow-hidden border-2 transition-all {{ $idx === 0 ? 'border-primary' : 'border-transparent hover:border-gray-300' }}"
-                            data-image-url="{{ \Storage::url($img) }}"
-                            onclick="changeMainImage(this)">
-                            <img src="{{ \Storage::url($img) }}" alt="Foto {{ $idx + 1 }}"
-                                class="w-full h-full object-cover">
-                        </button>
+                    @if ($figure->is_featured)
+                        <span class="absolute left-3 top-3 rounded-full bg-sun-400 px-3 py-1 text-xs font-extrabold text-clay-800 shadow">★ Destacada</span>
+                    @endif
+                </div>
+                @if (count($gallery) > 1)
+                    <div class="hide-scrollbar mt-3 flex gap-2 overflow-x-auto">
+                        @foreach ($gallery as $i => $url)
+                            <button type="button" data-url="{{ $url }}" aria-label="Ver foto {{ $i + 1 }} de {{ count($gallery) }}"
+                                class="thumb h-16 w-16 shrink-0 overflow-hidden rounded-2xl border-2 {{ $i === 0 ? 'border-leaf-500' : 'border-transparent' }} md:h-20 md:w-20">
+                                <img src="{{ $url }}" alt="" loading="lazy" class="h-full w-full object-cover">
+                            </button>
                         @endforeach
                     </div>
-                    <div class="mt-2 text-xs text-gray-500 text-center">
-                        {{ count($allImages) }} foto{{ count($allImages) === 1 ? '' : 's' }} — toca una miniatura para cambiar
-                    </div>
+                @endif
+            </div>
+
+            <div class="flex flex-col">
+                @if ($figure->category)
+                    <span class="text-sm font-bold uppercase tracking-wide text-leaf-600">{{ $figure->category->name }}</span>
+                @endif
+                <h1 class="mt-1 text-3xl font-semibold leading-tight md:text-4xl">{{ $figure->name }}</h1>
+                <p class="mt-1 text-sm text-clay-800/50">SKU: {{ $figure->sku }}</p>
+
+                <p class="mt-5 font-display text-5xl font-semibold text-berry-600 tabular-nums">{{ $figure->formatted_price }}</p>
+
+                <div class="mt-4">
+                    @if ($figure->stock > 0)
+                        <span class="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-bold {{ $figure->is_low_stock ? 'bg-sun-400/25 text-clay-500' : 'bg-leaf-100 text-leaf-700' }}">
+                            ✓ {{ $figure->is_low_stock ? '¡Últimas disponibles!' : 'Disponible' }} · {{ $figure->stock }} pza(s)
+                        </span>
+                    @else
+                        <span class="inline-flex rounded-full bg-sun-400/25 px-4 py-2 text-sm font-bold text-clay-500">Sobre pedido</span>
                     @endif
                 </div>
 
-                <div class="flex flex-col">
-                    @if($product->category)
-                    <span class="text-secondary font-medium mb-2">{{ $product->category->name }}</span>
-                    @endif
-                    <h1 class="text-3xl font-bold text-dark mb-2">{{ $product->name }}</h1>
-                    <p class="text-gray-500 text-sm mb-4">SKU: {{ $product->sku }}</p>
-
-                    <div class="mb-6">
-                        <span class="text-4xl font-bold text-primary">${{ number_format($product->price, 2) }}</span>
-                        @if($product->cost && $product->cost > 0)
-                        <span class="text-gray-400 line-through ml-2">${{ number_format($product->cost, 2) }}</span>
-                        @endif
+                @if ($figure->description)
+                    <div class="mt-6">
+                        <h2 class="mb-1 text-lg font-semibold">Descripción</h2>
+                        <p class="whitespace-pre-line text-clay-800/80">{{ $figure->description }}</p>
                     </div>
+                @endif
 
-                    <div class="mb-6">
-                        @if($product->stock > 0)
-                        <span class="inline-flex items-center gap-2 px-4 py-2 rounded-full {{ $product->is_low_stock ? 'bg-orange-100 text-orange-700' : 'bg-green-100 text-green-700' }}">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                      d="M5 13l4 4L19 7"/>
-                            </svg>
-                            {{ $product->is_low_stock ? '¡Últimos disponibles!' : 'En stock' }}
-                            <span class="font-semibold">({{ $product->stock }} unidades)</span>
-                        </span>
-                        @else
-                        <span class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-red-100 text-red-700">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                      d="M6 18L18 6M6 6l12 12"/>
-                            </svg>
-                            Agotado
-                        </span>
-                        @endif
-                    </div>
-
-                    @if($product->description)
-                    <div class="mb-6">
-                        <h3 class="font-semibold text-dark mb-2">Descripción</h3>
-                        <p class="text-gray-600">{{ $product->description }}</p>
-                    </div>
-                    @endif
-
-                    @if($product->figure)
-                    <div class="mb-6 p-4 bg-purple-50 rounded-lg">
-                        <h3 class="font-semibold text-dark mb-1">Figura Funko Pop</h3>
-                        <p class="text-gray-600">{{ $product->figure->name }}</p>
-                    </div>
-                    @endif
-
-                    <div class="mt-auto space-y-3">
-                        @if($product->stock > 0)
-                        <a href="https://wa.me/?text={{ urlencode('¡Hola! Quiero comprar esta Funkomaceta! 🎉\n\n' . $product->name . '\n💰 Precio: $' . number_format($product->price, 2) . '\n📦 Stock: ' . $product->stock . '\n🔗 ' . route('catalog.product', $product->slug)) }}"
-                           target="_blank"
-                           class="w-full bg-green-500 hover:bg-green-600 text-white py-4 rounded-xl flex items-center justify-center gap-3 transition-colors text-lg font-semibold">
-                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-                            </svg>
-                            Comprar por WhatsApp
-                        </a>
-                        @endif
-
-                        <a href="https://wa.me/?text={{ urlencode('¡Mira esta Funkomaceta! 🎉 ' . $product->name . '\n💰 Precio: $' . number_format($product->price, 2) . '\n🔗 ' . route('catalog.product', $product->slug)) }}"
-                           target="_blank"
-                           class="w-full border-2 border-primary text-primary hover:bg-primary hover:text-white py-4 rounded-xl flex items-center justify-center gap-3 transition-colors text-lg font-semibold">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                      d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
-                            </svg>
-                            Compartir
-                        </a>
-                    </div>
+                <div class="mt-8 hidden space-y-3 md:block">
+                    @include('catalog.partials.actions')
                 </div>
             </div>
         </div>
 
-        @if($relatedProducts->count() > 0)
-        <section class="mt-8 md:mt-12">
-            <h2 class="text-xl md:text-2xl font-bold text-dark mb-4 md:mb-6">Productos Relacionados</h2>
-            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 md:gap-6">
-                @foreach($relatedProducts as $related)
-                <a href="{{ route('catalog.product', $related->slug) }}" class="bg-white rounded-xl shadow-sm overflow-hidden group">
-                    <div class="aspect-square bg-gray-100">
-                        @if($related->image)
-                        <img src="{{ $related->image }}" alt="{{ $related->name }}"
-                             class="w-full h-full object-cover transition-transform group-hover:scale-110">
-                        @else
-                        <div class="w-full h-full flex items-center justify-center text-gray-300">
-                            <span class="text-4xl">📦</span>
-                        </div>
-                        @endif
-                    </div>
-                    <div class="p-3 md:p-4">
-                        <h3 class="font-semibold text-dark text-sm truncate">{{ $related->name }}</h3>
-                        <p class="text-primary font-bold">${{ number_format($related->price, 2) }}</p>
-                    </div>
-                </a>
-                @endforeach
-            </div>
-        </section>
+        @if ($relatedFigures->isNotEmpty())
+            <section class="mt-12">
+                <h2 class="mb-4 text-2xl font-semibold text-leaf-700">También te puede gustar</h2>
+                <div class="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-5">
+                    @foreach ($relatedFigures as $related)
+                        @include('catalog.partials.card', ['figure' => $related])
+                    @endforeach
+                </div>
+            </section>
         @endif
     </div>
-</div>
 
-{{-- Fixed WhatsApp Button - Mobile --}}
-@if($product->stock > 0)
-<div class="fixed bottom-0 left-0 right-0 bg-primary md:hidden z-50 pb-safe">
-    <a href="https://wa.me/?text={{ urlencode('¡Hola! Quiero comprar esta Funkomaceta! 🎉\n\n' . $product->name . '\n💰 Precio: $' . number_format($product->price, 2) . '\n📦 Stock: ' . $product->stock . '\n🔗 ' . route('catalog.product', $product->slug)) }}"
-       target="_blank"
-       class="flex items-center justify-center gap-2 py-4 text-white font-semibold text-base">
-        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-        </svg>
-        Comprar por WhatsApp
-    </a>
-</div>
-@endif
-
-<script>
-function changeMainImage(btn) {
-    const mainImage = document.getElementById('mainImage');
-    const newUrl = btn.dataset.imageUrl;
-    if (mainImage && newUrl) {
-        mainImage.style.opacity = '0';
-        setTimeout(() => {
-            mainImage.src = newUrl;
-            mainImage.style.opacity = '1';
-        }, 150);
-    }
-    document.querySelectorAll('.thumb-btn').forEach(b => {
-        b.classList.remove('border-primary');
-        b.classList.add('border-transparent');
-    });
-    btn.classList.remove('border-transparent');
-    btn.classList.add('border-primary');
-}
-
-document.querySelectorAll('.thumb-btn').forEach(btn => {
-    btn.addEventListener('click', () => changeMainImage(btn));
-});
-</script>
+    {{-- Barra fija móvil --}}
+    <div class="fixed inset-x-0 bottom-0 z-50 space-y-2 border-t border-cream-200 bg-cream-50/95 p-3 backdrop-blur md:hidden" style="padding-bottom:max(env(safe-area-inset-bottom),.75rem)">
+        @include('catalog.partials.actions')
+    </div>
 @endsection
+
+@push('scripts')
+    <script>
+        const main = document.getElementById('mainImage');
+        document.querySelectorAll('.thumb').forEach(btn => btn.addEventListener('click', () => {
+            if (!main) return;
+            main.style.opacity = 0;
+            setTimeout(() => { main.src = btn.dataset.url; main.style.opacity = 1; }, 150);
+            document.querySelectorAll('.thumb').forEach(b => {
+                b.classList.toggle('border-leaf-500', b === btn);
+                b.classList.toggle('border-transparent', b !== btn);
+            });
+        }));
+    </script>
+@endpush

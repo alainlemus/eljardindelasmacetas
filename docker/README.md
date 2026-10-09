@@ -122,3 +122,25 @@ docker compose up -d
 - App: 8080 (HTTP)
 - MySQL: 3307 (external)
 - Redis: 6380 (external)
+
+## Cargar el catálogo en staging / develop
+
+En Dokploy, en las variables de entorno del servicio de staging agrega (y redespliega):
+
+```
+RUN_MIGRATIONS=true   # aplica las migraciones pendientes al arrancar
+SEED_CATALOG=true     # carga las 585 figuras del proveedor con sus fotos WebP
+```
+
+Ambas están apagadas por defecto. El seeder es idempotente: se puede dejar activo o
+quitarlo después sin riesgo (no duplica, no pisa precios, stock ni fotos subidas a mano).
+También se puede correr a mano en la terminal del contenedor:
+
+```bash
+php artisan migrate --force
+php artisan db:seed --class='Database\Seeders\CatalogSeeder' --force
+```
+
+> La migración `merge_funkomacetas_into_figures` borra la tabla `funkomacetas` y no es
+> reversible: respalda la base de staging antes del primer despliegue con `RUN_MIGRATIONS=true`.
+

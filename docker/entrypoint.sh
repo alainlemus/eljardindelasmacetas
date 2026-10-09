@@ -28,6 +28,17 @@ fi
 php artisan storage:link --force
 chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+# Opcionales (apagados por defecto): se activan con variables de entorno en Dokploy.
+#   RUN_MIGRATIONS=true  -> php artisan migrate --force
+#   SEED_CATALOG=true    -> carga el catálogo del proveedor (datos + fotos WebP). Es idempotente:
+#                           no duplica figuras ni pisa precios, stock o fotos ya capturados.
+if [ "$RUN_MIGRATIONS" = "true" ]; then
+    php artisan migrate --force
+fi
+if [ "$SEED_CATALOG" = "true" ]; then
+    php artisan db:seed --class=Database\\Seeders\\CatalogSeeder --force
+fi
+
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache

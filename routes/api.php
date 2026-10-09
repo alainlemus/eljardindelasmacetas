@@ -1,12 +1,11 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\FigureController;
-use App\Http\Controllers\Api\ProductController;
-use App\Http\Controllers\Api\PublicCatalogController;
 use App\Http\Controllers\Api\ImageUploadController;
+use App\Http\Controllers\Api\PublicCatalogController;
+use Illuminate\Support\Facades\Route;
 
 Route::prefix('auth')->group(function () {
     Route::post('login', [AuthController::class, 'login']);
@@ -18,18 +17,21 @@ Route::prefix('auth')->group(function () {
     });
 });
 
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::apiResource('categories', CategoryController::class);
     Route::patch('categories/{category}/toggle-active', [CategoryController::class, 'toggleActive']);
-    Route::apiResource('figures', FigureController::class);
-    Route::patch('figures/{figure}/toggle-active', [FigureController::class, 'toggleActive']);
-    Route::apiResource('products', ProductController::class)->except(['index', 'show']);
-    Route::get('products', [ProductController::class, 'index']);
-    Route::get('products/{product}', [ProductController::class, 'show']);
-    Route::patch('products/{product}/stock', [ProductController::class, 'updateStock']);
-    Route::patch('products/{product}/toggle-active', [ProductController::class, 'toggleActive']);
-    Route::post('products/{product}/sale', [ProductController::class, 'recordSale']);
-    Route::get('products/top-selling', [ProductController::class, 'topSelling']);
+
+    // "products" se conserva como alias de "figures" por compatibilidad con la app móvil.
+    foreach (['figures', 'products'] as $prefix) {
+        Route::get("{$prefix}/top-selling", [FigureController::class, 'topSelling']);
+        Route::apiResource($prefix, FigureController::class)->parameters([$prefix => 'figure'])->names(
+            collect(['index', 'store', 'show', 'update', 'destroy'])
+                ->mapWithKeys(fn ($m) => [$m => "{$prefix}.{$m}"])->all()
+        );
+        Route::patch("{$prefix}/{figure}/stock", [FigureController::class, 'updateStock']);
+        Route::patch("{$prefix}/{figure}/toggle-active", [FigureController::class, 'toggleActive']);
+        Route::post("{$prefix}/{figure}/sale", [FigureController::class, 'recordSale']);
+    }
 
     Route::post('upload/image', [ImageUploadController::class, 'upload']);
     Route::post('upload/images', [ImageUploadController::class, 'uploadMultiple']);
@@ -37,6 +39,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
 Route::prefix('public')->group(function () {
     Route::get('catalog', [PublicCatalogController::class, 'catalog']);
+    Route::get('figures', [PublicCatalogController::class, 'products']);
+    Route::get('figures/{id}', [PublicCatalogController::class, 'product']);
     Route::get('products', [PublicCatalogController::class, 'products']);
     Route::get('products/{id}', [PublicCatalogController::class, 'product']);
 });

@@ -3,10 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Funkomaceta;
+use App\Support\ImageOptimizer;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 class ImageUploadController extends Controller
 {
@@ -16,7 +15,7 @@ class ImageUploadController extends Controller
             'image' => 'required|file|mimes:jpeg,jpg,png,gif,webp,heic,heif|max:10240',
         ]);
 
-        $path = $request->file('image')->store('funkomacetas', 'public');
+        $path = ImageOptimizer::store($request->file('image'));
 
         return response()->json([
             'url' => $this->absoluteUrl($path),
@@ -33,7 +32,7 @@ class ImageUploadController extends Controller
 
         $paths = [];
         foreach ($request->file('images') as $image) {
-            $path = $image->store('funkomacetas', 'public');
+            $path = ImageOptimizer::store($image);
             $paths[] = $this->absoluteUrl($path);
         }
 
@@ -44,6 +43,6 @@ class ImageUploadController extends Controller
 
     private function absoluteUrl(string $path): string
     {
-        return rtrim(config('app.url'), '/') . '/storage/' . ltrim($path, '/');
+        return rtrim(config('app.url'), '/').'/storage/'.ltrim($path, '/');
     }
 }

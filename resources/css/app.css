@@ -2,8 +2,36 @@
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
+@source '../views/**/*.blade.php';
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-sans: 'Nunito', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
+    --font-display: 'Fredoka', 'Nunito', ui-sans-serif, system-ui, sans-serif;
+
+    /* Paleta tomada del logo */
+    --color-leaf-50: #f1f8ee;
+    --color-leaf-100: #dcefd5;
+    --color-leaf-500: #4c9a3f;
+    --color-leaf-600: #3a7f30;
+    --color-leaf-700: #2f6628;
+    --color-berry-500: #d93a35;
+    --color-berry-600: #bd2b27;
+    --color-clay-500: #a85a2e;
+    --color-clay-800: #4a2c1a;
+    --color-cream-50: #fffaf0;
+    --color-cream-100: #fff3dc;
+    --color-cream-200: #f6e4bf;
+    --color-sun-400: #f6b93b;
+}
+
+@layer base {
+    html { scroll-behavior: smooth; -webkit-tap-highlight-color: transparent; }
+    body { @apply bg-cream-50 font-sans text-clay-800 antialiased; }
+    h1, h2, h3 { @apply font-display; }
+}
+
+@utility hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+    &::-webkit-scrollbar { display: none; }
 }

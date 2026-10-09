@@ -6,12 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class CategoryController extends Controller
 {
     public function index(): JsonResponse
     {
-        $categories = Category::withCount('funkomacetas')->get();
+        $categories = Category::withCount('figures')->get();
 
         return response()->json([
             'data' => $categories,
@@ -28,7 +29,7 @@ class CategoryController extends Controller
 
         $category = Category::create([
             'name' => $request->name,
-            'slug' => \Illuminate\Support\Str::slug($request->name),
+            'slug' => Str::slug($request->name),
             'description' => $request->description,
             'is_active' => $request->is_active ?? true,
         ]);
@@ -41,7 +42,7 @@ class CategoryController extends Controller
 
     public function show(Category $category): JsonResponse
     {
-        $category->loadCount('funkomacetas');
+        $category->loadCount('figures');
 
         return response()->json([
             'data' => $category,
@@ -59,7 +60,7 @@ class CategoryController extends Controller
         $category->update($request->only(['name', 'description', 'is_active']));
 
         if ($request->has('name')) {
-            $category->slug = \Illuminate\Support\Str::slug($request->name);
+            $category->slug = Str::slug($request->name);
             $category->save();
         }
 
@@ -71,7 +72,7 @@ class CategoryController extends Controller
 
     public function destroy(Category $category): JsonResponse
     {
-        if ($category->funkomacetas()->count() > 0) {
+        if ($category->figures()->count() > 0) {
             return response()->json([
                 'message' => 'No se puede eliminar la categoría porque tiene productos asociados',
             ], 422);
@@ -86,7 +87,7 @@ class CategoryController extends Controller
 
     public function toggleActive(Category $category): JsonResponse
     {
-        $category->update(['is_active' => !$category->is_active]);
+        $category->update(['is_active' => ! $category->is_active]);
 
         return response()->json([
             'data' => $category,

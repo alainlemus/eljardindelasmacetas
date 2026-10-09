@@ -33,15 +33,15 @@ class Category extends Model
         });
 
         static::updating(function ($category) {
-            if ($category->isDirty('name') && !$category->isDirty('slug')) {
+            if ($category->isDirty('name') && ! $category->isDirty('slug')) {
                 $category->slug = Str::slug($category->name);
             }
         });
     }
 
-    public function funkomacetas(): HasMany
+    public function figures(): HasMany
     {
-        return $this->hasMany(Funkomaceta::class);
+        return $this->hasMany(Figure::class);
     }
 
     public function scopeActive($query)
