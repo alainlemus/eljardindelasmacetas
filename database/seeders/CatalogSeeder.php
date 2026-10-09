@@ -62,7 +62,9 @@ class CatalogSeeder extends Seeder
                 ]);
             }
 
-            if (! $figure->image && ! empty($photos[$sku])) {
+            // Se asigna si no tiene foto, o se refresca si la foto es una de las que carga este seeder.
+            $managed = ! $figure->image || str_starts_with($figure->image, 'funkomacetas/catalogo/');
+            if ($managed && ! empty($photos[$sku])) {
                 $paths = collect($photos[$sku])->map(function (string $file) use ($disk) {
                     $path = 'funkomacetas/catalogo/'.$file;
                     $disk->put($path, file_get_contents(__DIR__.'/data/images/'.$file), 'public');
