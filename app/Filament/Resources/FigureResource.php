@@ -8,6 +8,7 @@ use App\Support\ImageOptimizer;
 use Filament\Actions;
 use Filament\Forms;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -20,7 +21,7 @@ class FigureResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return 'Catalogo';
+        return 'Catálogo';
     }
 
     public static function getNavigationIcon(): ?string
@@ -48,7 +49,7 @@ class FigureResource extends Resource
                     ->maxLength(255)
                     ->columnSpan(2)
                     ->live()
-                    ->afterStateUpdated(fn (Forms\Set $set, ?string $state) => $set('slug', Str::slug($state))
+                    ->afterStateUpdated(fn (Set $set, ?string $state) => $set('slug', Str::slug($state))
                     ),
                 Forms\Components\TextInput::make('slug')
                     ->required()
@@ -59,7 +60,7 @@ class FigureResource extends Resource
                     ->maxLength(255)
                     ->unique(ignoreRecord: true),
                 Forms\Components\Select::make('category_id')
-                    ->label('Categoria')
+                    ->label('Categoría')
                     ->relationship('category', 'name')
                     ->searchable()
                     ->preload(),
@@ -79,7 +80,7 @@ class FigureResource extends Resource
                     ->numeric()
                     ->default(0),
                 Forms\Components\TextInput::make('min_stock')
-                    ->label('Stock minimo')
+                    ->label('Stock mínimo')
                     ->required()
                     ->numeric()
                     ->default(5),
@@ -91,7 +92,7 @@ class FigureResource extends Resource
                     ->saveUploadedFileUsing(fn (TemporaryUploadedFile $file): string => ImageOptimizer::store($file))
                     ->helperText('Se convierte a WebP y se comprime automáticamente.'),
                 Forms\Components\FileUpload::make('images')
-                    ->label('Imagenes adicionales')
+                    ->label('Imágenes adicionales')
                     ->multiple()
                     ->image()
                     ->disk('public')
@@ -99,7 +100,7 @@ class FigureResource extends Resource
                     ->saveUploadedFileUsing(fn (TemporaryUploadedFile $file): string => ImageOptimizer::store($file))
                     ->helperText('Se convierte a WebP y se comprime automáticamente.'),
                 Forms\Components\Textarea::make('description')
-                    ->label('Descripcion')
+                    ->label('Descripción')
                     ->rows(3)
                     ->columnSpan('full'),
                 Forms\Components\Toggle::make('is_active')
@@ -124,7 +125,7 @@ class FigureResource extends Resource
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('category.name')
-                    ->label('Categoria')
+                    ->label('Categoría')
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('sku')
@@ -132,7 +133,7 @@ class FigureResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('price')
                     ->label('Precio')
-                    ->money('USD')
+                    ->money('MXN', locale: 'es_MX')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('stock')
                     ->label('Stock')
@@ -152,7 +153,7 @@ class FigureResource extends Resource
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('category_id')
-                    ->label('Categoria')
+                    ->label('Categoría')
                     ->relationship('category', 'name')
                     ->searchable(),
                 Tables\Filters\Filter::make('in_stock')

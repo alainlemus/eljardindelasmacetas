@@ -2,6 +2,7 @@
 
 namespace App\Filament;
 
+use App\Filament\Pages\Auth\Login;
 use App\Filament\Pages\Dashboard;
 use App\Filament\Widgets\InventoryStats;
 use Filament\Http\Middleware\Authenticate;
@@ -24,16 +25,20 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
-            ->login()
+            ->login(Login::class)
             ->brandName('El Jardín de las Macetas')
             ->brandLogo(asset('images/logo.png'))
             ->brandLogoHeight('3rem')
             ->favicon(asset('images/favicon/favicon-96x96.png'))
             ->colors([
-                'primary' => Color::hex('#3a7f30'),
+                // Escala verde del logo (600 = #3A7F30, el verde de marca).
+                'primary' => [
+                    50 => '#f1f8ee', 100 => '#dcefd5', 200 => '#bde0b1', 300 => '#96cb86', 400 => '#70b25f',
+                    500 => '#4c9a3f', 600 => '#3a7f30', 700 => '#2f6628', 800 => '#285222', 900 => '#23441f', 950 => '#0f240d',
+                ],
+                'success' => Color::hex('#4c9a3f'),
                 'danger' => Color::hex('#d93a35'),
                 'warning' => Color::hex('#f6b93b'),
-                'success' => Color::hex('#4c9a3f'),
                 'info' => Color::hex('#a85a2e'),
                 'gray' => Color::Stone,
             ])
@@ -46,15 +51,7 @@ class AdminPanelProvider extends PanelProvider
             )
             ->renderHook(
                 PanelsRenderHook::HEAD_END,
-                fn (): string => '<style>
-                    .fi-body{background:#fffaf0}
-                    .dark .fi-body{background:#1c1712}
-                    .fi-sidebar,.fi-topbar{border-color:#f6e4bf}
-                    .fi-section,.fi-ta-ctn{border-radius:1.25rem}
-                    .fi-btn{border-radius:.9rem}
-                    .fi-sidebar-item-active>.fi-sidebar-item-btn{background:#dcefd5}
-                    h1,.fi-header-heading{font-family:Fredoka,Nunito,sans-serif}
-                </style>'
+                fn () => view('filament.theme'),
             )
             ->darkMode(true)
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')

@@ -12,6 +12,19 @@ a `main`, la GitHub Action `release.yml` crea la etiqueta `vX.Y.Z` y el Release 
 estas notas. Fuera de producción la versión se muestra como `vX.Y.Z-dev · commit`.
 El encabezado de cada sección debe ser exacto: `## [X.Y.Z] - AAAA-MM-DD`.
 
+## [1.5.0] - 2026-10-10
+
+### Corregido
+- El tablero del panel aparecía vacío porque su widget esperaba a cargarse por scroll; ahora carga con la página.
+- Los precios del panel salían como "160,00 US$"; ahora se muestran en pesos ($160.00).
+- Al escribir el nombre en el formulario de Figura o Categoría el panel marcaba error; ahora el campo "slug" se llena solo.
+- Acentos en el panel (Catálogo, Categoría, Descripción, Stock mínimo, Imágenes).
+
+### Cambiado
+- El panel de administración (`/admin`) adopta el verde del logo: barra lateral verde con degradado y opción activa resaltada, encabezado crema, botones verdes sólidos, títulos en Fredoka y filas de tablas con acento verde; también en modo oscuro.
+- Tablero del panel con "Total de figuras", "Sin precio", "Stock bajo" y "Valor del inventario" (antes decía "Productos" y "Sin stock").
+- La pantalla de inicio de sesión del panel (`/admin/login`) ahora tiene dos secciones: a la izquierda la marca (logo, mensaje y círculos, burbujas y hojitas animados) y a la derecha el formulario con el saludo "Bienvenido de nuevo", la versión y un enlace al catálogo. En celular la marca queda arriba y el formulario abajo; funciona en modo claro y oscuro y respeta "reducir movimiento".
+
 ## [1.4.0] - 2026-10-10
 
 ### Agregado

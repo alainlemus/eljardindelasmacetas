@@ -7,6 +7,7 @@ use App\Models\Category;
 use Filament\Actions;
 use Filament\Forms;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -18,7 +19,7 @@ class CategoryResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return 'Catalogo';
+        return 'Catálogo';
     }
 
     public static function getNavigationIcon(): ?string
@@ -28,12 +29,12 @@ class CategoryResource extends Resource
 
     public static function getModelLabel(): string
     {
-        return 'Categoria';
+        return 'Categoría';
     }
 
     public static function getPluralModelLabel(): string
     {
-        return 'Categorias';
+        return 'Categorías';
     }
 
     public static function form(Schema $schema): Schema
@@ -45,7 +46,7 @@ class CategoryResource extends Resource
                     ->required()
                     ->maxLength(255)
                     ->live()
-                    ->afterStateUpdated(fn (Forms\Set $set, ?string $state) => $set('slug', Str::slug($state))
+                    ->afterStateUpdated(fn (Set $set, ?string $state) => $set('slug', Str::slug($state))
                     ),
                 Forms\Components\TextInput::make('slug')
                     ->required()
