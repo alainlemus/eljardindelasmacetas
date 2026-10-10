@@ -108,4 +108,26 @@ class ExampleTest extends TestCase
         $this->assertGreaterThan(350, $withImage);
         $this->assertStringEndsWith('.webp', Figure::whereNotNull('image')->first()->image);
     }
+
+    public function test_figures_api_filters_and_stats(): void
+    {
+        $admin = User::factory()->create(['is_admin' => true]);
+        $category = Category::factory()->create();
+        Figure::factory()->create(['category_id' => $category->id, 'name' => 'Goku', 'sku' => 'FM-1', 'price' => 0, 'is_active' => false, 'stock' => 0]);
+        Figure::factory()->create(['category_id' => $category->id, 'name' => 'Vegeta', 'sku' => 'FM-2', 'price' => 200, 'stock' => 2, 'min_stock' => 5]);
+
+        $this->actingAs($admin, 'sanctum');
+
+        $this->getJson('/api/figures?search=goku')->assertOk()->assertJsonCount(1, 'data');
+        $this->getJson('/api/figures?no_price=1')->assertOk()->assertJsonCount(1, 'data')->assertJsonPath('data.0.name', 'Goku');
+        $this->getJson('/api/figures?active=0')->assertOk()->assertJsonCount(1, 'data');
+        $this->getJson('/api/figures?search=100%25')->assertOk()->assertJsonCount(0, 'data');
+
+        $this->getJson('/api/figures/stats')->assertOk()
+            ->assertJsonPath('data.total', 2)
+            ->assertJsonPath('data.inactive', 1)
+            ->assertJsonPath('data.no_price', 1)
+            ->assertJsonPath('data.low_stock', 1)
+            ->assertJsonPath('data.inventory_value', 400);
+    }
 }
