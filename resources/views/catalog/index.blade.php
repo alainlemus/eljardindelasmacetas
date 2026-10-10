@@ -4,17 +4,42 @@
 
 @section('content')
     {{-- Hero --}}
-    <section class="mx-auto max-w-6xl px-4 pt-6">
-        <div class="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-leaf-500 to-leaf-700 px-6 py-8 text-white shadow-lg md:px-12 md:py-12">
-            <div class="absolute -right-10 -top-10 h-56 w-56 rounded-full bg-white/10"></div>
-            <div class="absolute -bottom-16 right-24 h-40 w-40 rounded-full bg-sun-400/20"></div>
+    <section class="mx-auto max-w-6xl px-4 pt-6" data-welcome>
+        <div data-parallax class="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-leaf-500 to-leaf-700 px-6 py-8 text-white shadow-lg md:px-12 md:py-12">
+            {{-- Círculos que se mueven dentro de la tarjeta (y siguen al cursor) --}}
+            <div data-depth="26" class="absolute -right-10 -top-10"><div class="hero-blob h-56 w-56 rounded-full bg-white/10"></div></div>
+            <div data-depth="40" class="absolute -bottom-16 right-24"><div class="hero-blob-slow h-40 w-40 rounded-full bg-sun-400/25"></div></div>
+            <div data-depth="18" class="absolute left-[38%] top-4"><div class="hero-blob-slow h-16 w-16 rounded-full bg-white/10" style="animation-delay:-6s"></div></div>
+            <div data-depth="32" class="absolute -left-8 bottom-6"><div class="hero-blob h-28 w-28 rounded-full bg-berry-500/20" style="animation-delay:-3s"></div></div>
+
+            {{-- Burbujitas que suben --}}
+            @foreach ([[8, '9s', '0s', 14, 0.45], [22, '11s', '-4s', 10, 0.35], [47, '8s', '-2s', 18, 0.5], [63, '12s', '-7s', 8, 0.4], [78, '10s', '-5s', 12, 0.45], [90, '9s', '-1s', 16, 0.35]] as [$left, $dur, $delay, $size, $op])
+                <span class="hero-bubble absolute bottom-2 rounded-full border border-white/50 bg-white/20"
+                    style="left: {{ $left }}%; width: {{ $size }}px; height: {{ $size }}px; --d: {{ $dur }}; --delay: {{ $delay }}; --o: {{ $op }}; --sway: {{ $size }}px"></span>
+            @endforeach
+
+            {{-- Hojitas que se mecen --}}
+            <span class="hero-leaf pointer-events-none absolute right-8 bottom-6 text-3xl" style="--d:5s" aria-hidden="true">🌿</span>
+            <span class="hero-leaf pointer-events-none absolute right-40 top-6 hidden text-2xl md:block" style="--d:7s;--delay:-2s" aria-hidden="true">🌱</span>
+            <span class="hero-leaf pointer-events-none absolute left-[46%] bottom-4 hidden text-2xl md:block" style="--d:6s;--delay:-3s" aria-hidden="true">🌸</span>
+
             <div class="relative flex flex-col items-center gap-6 text-center md:flex-row md:text-left">
-                <img src="{{ asset('images/logo.png') }}?v={{ filemtime(public_path('images/logo.png')) }}" alt="El Jardín de las Macetas"
-                    class="h-36 w-36 shrink-0 rounded-full bg-cream-50 object-contain p-2 shadow-xl md:h-44 md:w-44">
+                <div data-depth="-14">
+                    <img src="{{ asset('images/logo.png') }}?v={{ filemtime(public_path('images/logo.png')) }}" alt="El Jardín de las Macetas" data-confetti="big" title="¡Tócame!"
+                        class="logo-bob h-36 w-36 shrink-0 rounded-full bg-cream-50 object-contain p-2 shadow-xl md:h-44 md:w-44">
+                </div>
                 <div>
-                    <h1 class="text-3xl font-semibold leading-tight md:text-5xl">Tus personajes favoritos,<br class="hidden md:block"> ahora con plantitas 🌱</h1>
-                    <p class="mt-3 max-w-xl text-white/90 md:text-lg">Figuras Funko Pop convertidas en macetas artesanales. Elige la tuya y pídela por WhatsApp.</p>
-                    <a href="#catalogo" class="mt-5 inline-flex min-h-11 items-center rounded-full bg-sun-400 px-6 font-bold text-clay-800 shadow transition hover:bg-white">Ver figuras</a>
+                    @php($words = explode(' ', 'Tus personajes favoritos, ahora con plantitas'))
+                    <h1 class="text-3xl font-semibold leading-tight md:text-5xl" aria-label="Tus personajes favoritos, ahora con plantitas">
+                        @foreach ($words as $i => $word)
+                            <span class="word" style="--i: {{ $i }}" aria-hidden="true">{{ $word }}</span>
+                        @endforeach
+                        <span class="word" style="--i: {{ count($words) }}" aria-hidden="true">🌱</span>
+                    </h1>
+                    <p class="mt-3 max-w-xl text-white/90 md:text-lg word" style="--i: {{ count($words) + 1 }}">Figuras Funko Pop convertidas en macetas artesanales. Elige la tuya y pídela por WhatsApp.</p>
+                    <a href="#catalogo" data-confetti="big"
+                        class="cta-pulse word mt-5 inline-flex min-h-11 items-center gap-2 rounded-full bg-sun-400 px-6 font-bold text-clay-800 shadow transition hover:-translate-y-0.5 hover:bg-white active:scale-95"
+                        style="--i: {{ count($words) + 2 }}">Ver figuras <span class="cta-arrow" aria-hidden="true">↓</span></a>
                 </div>
             </div>
         </div>
@@ -23,10 +48,10 @@
     {{-- Destacadas --}}
     @if ($featured->isNotEmpty())
         <section class="mx-auto mt-10 max-w-6xl px-4">
-            <h2 class="mb-4 text-2xl font-semibold text-leaf-700">★ Destacadas</h2>
+            <h2 data-reveal class="mb-4 text-2xl font-semibold text-leaf-700">★ Destacadas</h2>
             <div class="hide-scrollbar -mx-4 flex snap-x gap-4 overflow-x-auto px-4 pb-2">
                 @foreach ($featured as $figure)
-                    <div class="w-44 shrink-0 snap-start sm:w-52">@include('catalog.partials.card')</div>
+                    <div class="w-44 shrink-0 snap-start sm:w-52" style="--i: {{ $loop->index }}">@include('catalog.partials.card')</div>
                 @endforeach
             </div>
         </section>
@@ -48,10 +73,10 @@
             <nav class="hide-scrollbar -mx-4 mt-3 flex gap-2 overflow-x-auto px-4" aria-label="Categorías">
                 @php($chip = 'shrink-0 rounded-full px-4 py-2 text-sm font-bold transition')
                 <a href="{{ route('catalog', array_filter(['search' => request('search')])) }}"
-                    class="{{ $chip }} {{ request('category') ? 'bg-white text-clay-800 ring-1 ring-cream-200 hover:ring-leaf-500' : 'bg-leaf-500 text-white' }}">Todas</a>
+                    class="{{ $chip }} active:scale-95 {{ request('category') ? 'bg-white text-clay-800 ring-1 ring-cream-200 hover:ring-leaf-500' : 'bg-leaf-500 text-white' }}">Todas</a>
                 @foreach ($categories as $category)
                     <a href="{{ route('catalog', array_filter(['category' => $category->slug, 'search' => request('search')])) }}"
-                        class="{{ $chip }} {{ request('category') === $category->slug ? 'bg-leaf-500 text-white' : 'bg-white text-clay-800 ring-1 ring-cream-200 hover:ring-leaf-500' }}">{{ $category->name }}</a>
+                        class="{{ $chip }} active:scale-95 {{ request('category') === $category->slug ? 'bg-leaf-500 text-white' : 'bg-white text-clay-800 ring-1 ring-cream-200 hover:ring-leaf-500' }}">{{ $category->name }}</a>
                 @endforeach
             </nav>
         </div>
