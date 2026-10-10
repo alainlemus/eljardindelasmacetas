@@ -3,6 +3,8 @@
 namespace Tests\Feature;
 
 use App\Filament\Pages\Auth\Login;
+use App\Filament\Resources\FigureResource\Pages\ManageFigures;
+use App\Models\Figure;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
@@ -51,5 +53,26 @@ class AdminLoginTest extends TestCase
         $user = User::factory()->create(['is_admin' => false, 'password' => 'secreto123']);
 
         $this->actingAs($user)->get('/admin')->assertForbidden();
+    }
+
+    public function test_dashboard_stats_render_without_lazy_loading(): void
+    {
+        Figure::factory()->count(3)->create(['price' => 0]);
+        $admin = User::factory()->create(['is_admin' => true]);
+
+        $this->actingAs($admin)->get('/admin')->assertOk()
+            ->assertSee('Total de figuras')
+            ->assertSee('Sin precio')
+            ->assertSee('Valor del inventario');
+    }
+
+    public function test_panel_shows_prices_in_pesos(): void
+    {
+        Figure::factory()->create(['name' => 'Goku', 'price' => 160]);
+        $admin = User::factory()->create(['is_admin' => true]);
+
+        Livewire::actingAs($admin)->test(ManageFigures::class)
+            ->assertSee('$160.00')
+            ->assertDontSee('US$');
     }
 }

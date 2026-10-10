@@ -18,7 +18,7 @@ class CategoryResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return 'Catalogo';
+        return 'Catálogo';
     }
 
     public static function getNavigationIcon(): ?string
@@ -28,7 +28,7 @@ class CategoryResource extends Resource
 
     public static function getModelLabel(): string
     {
-        return 'Categoria';
+        return 'Categoría';
     }
 
     public static function getPluralModelLabel(): string
