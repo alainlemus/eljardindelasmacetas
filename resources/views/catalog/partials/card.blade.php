@@ -1,5 +1,6 @@
 @php($img = $figure->image_url)
-<article class="group relative flex flex-col overflow-hidden rounded-3xl border border-cream-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
+<article data-reveal style="--i: {{ isset($loop) ? $loop->index % 4 : 0 }}"
+    class="card-shine group relative flex flex-col overflow-hidden rounded-3xl border border-cream-200 bg-white shadow-sm hover:-translate-y-1 hover:shadow-xl">
     <a href="{{ route('catalog.product', $figure->slug) }}" class="flex flex-1 flex-col focus-visible:outline-2 focus-visible:outline-leaf-500">
         <div class="relative aspect-square overflow-hidden bg-cream-100">
             @if ($img)
@@ -37,8 +38,8 @@
     </a>
 
     <div class="px-3.5 pb-3.5">
-        <a href="{{ \App\Models\Figure::whatsappUrl($figure->shareText('¡Mira esta figura de El Jardín de las Macetas!')) }}" target="_blank" rel="noopener"
-            class="flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl bg-leaf-50 text-sm font-bold text-leaf-700 transition hover:bg-leaf-500 hover:text-white">
+        <a href="{{ \App\Models\Figure::whatsappUrl($figure->shareText('¡Mira esta figura de El Jardín de las Macetas!')) }}" target="_blank" rel="noopener" data-confetti
+            class="flex min-h-11 w-full active:scale-95 items-center justify-center gap-2 rounded-2xl bg-leaf-50 text-sm font-bold text-leaf-700 transition hover:bg-leaf-500 hover:text-white">
             @include('catalog.partials.whatsapp-icon', ['class' => 'h-4 w-4'])
             Compartir
         </a>

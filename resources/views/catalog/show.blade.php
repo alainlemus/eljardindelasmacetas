@@ -79,7 +79,7 @@
 
         @if ($relatedFigures->isNotEmpty())
             <section class="mt-12">
-                <h2 class="mb-4 text-2xl font-semibold text-leaf-700">También te puede gustar</h2>
+                <h2 data-reveal class="mb-4 text-2xl font-semibold text-leaf-700">También te puede gustar</h2>
                 <div class="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-5">
                     @foreach ($relatedFigures as $related)
                         @include('catalog.partials.card', ['figure' => $related])

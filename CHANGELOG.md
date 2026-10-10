@@ -12,6 +12,14 @@ a `main`, la GitHub Action `release.yml` crea la etiqueta `vX.Y.Z` y el Release 
 estas notas. Fuera de producción la versión se muestra como `vX.Y.Z-dev · commit`.
 El encabezado de cada sección debe ser exacto: `## [X.Y.Z] - AAAA-MM-DD`.
 
+## [1.2.0] - 2026-10-10
+
+### Agregado
+- Catálogo con más vida: los círculos del encabezado se mueven dentro de la tarjeta y siguen al cursor, suben burbujitas, se mecen hojitas, el título aparece palabra por palabra y el botón "Ver figuras" late.
+- Burbujas de colores flotando por todo el sitio que se pueden reventar con un clic o toque, y confeti: una lluvia de bienvenida (una vez por visita) y explosiones al tocar el logo o al pulsar "Compartir" y "Pedir por WhatsApp".
+- Las tarjetas aparecen con animación al hacer scroll y tienen un brillo al pasar el cursor.
+- Botón ✨ (abajo a la izquierda) para apagar o encender las burbujas y el confeti; respeta el ajuste de "reducir movimiento" del dispositivo y se pausa cuando la pestaña no se ve.
+
 ## [1.1.4] - 2026-10-10
 
 ### Corregido

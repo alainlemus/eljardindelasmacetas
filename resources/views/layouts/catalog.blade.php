@@ -26,7 +26,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
-    @vite(['resources/css/app.css'])
+    @vite(['resources/css/app.css', 'resources/js/catalog.js'])
     @stack('styles')
 </head>
 
@@ -45,14 +45,17 @@
         </div>
     </header>
 
-    <main>@yield('content')</main>
+    <main class="fx-layer">@yield('content')</main>
 
-    <footer class="mt-12 border-t border-cream-200 bg-cream-100 py-8 text-center text-sm text-clay-800/70">
+    <footer class="fx-layer mt-12 border-t border-cream-200 bg-cream-100 py-8 text-center text-sm text-clay-800/70">
         <img src="{{ asset('images/logo.png') }}" alt="" class="mx-auto mb-2 h-14 w-14 object-contain">
         <p class="font-display text-base font-semibold text-leaf-700">El Jardín de las Macetas</p>
         <p>Figuras Funko Pop convertidas en macetas artesanales</p>
         <p class="mt-1">© {{ date('Y') }} Todos los derechos reservados <span class="font-mono text-xs" title="Versión del sistema">· {{ \App\Support\AppVersion::label() }}</span></p>
     </footer>
+
+    <button id="fx-toggle" type="button" aria-pressed="true" aria-label="Burbujas y confeti"
+        class="fx-toggle fixed bottom-24 left-4 z-50 flex h-11 w-11 items-center justify-center rounded-full bg-white text-xl shadow-lg ring-1 ring-cream-200 md:bottom-5">✨</button>
 
     @stack('scripts')
 </body>
