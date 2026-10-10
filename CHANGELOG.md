@@ -12,6 +12,11 @@ a `main`, la GitHub Action `release.yml` crea la etiqueta `vX.Y.Z` y el Release 
 estas notas. Fuera de producción la versión se muestra como `vX.Y.Z-dev · commit`.
 El encabezado de cada sección debe ser exacto: `## [X.Y.Z] - AAAA-MM-DD`.
 
+## [1.1.2] - 2026-10-10
+
+### Cambiado
+- Las 466 figuras del proveedor que no traían precio cuestan $85 (confirmado por el proveedor): el catálogo las carga con ese costo y precio de venta de $170, y quedan activas. Si ya estaban cargadas sin precio, el seeder se los aplica; lo capturado a mano no se toca.
+
 ## [1.1.1] - 2026-10-10
 
 ### Corregido
