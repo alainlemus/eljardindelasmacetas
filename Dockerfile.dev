@@ -70,4 +70,11 @@ RUN chmod +x /entrypoint.sh
 
 EXPOSE 80
 
+# Arranque automático (lo ejecuta docker/entrypoint.sh al iniciar el contenedor, ya con la base
+# de datos disponible; en el build no existe). Se pueden sobrescribir desde Dokploy.
+#   RUN_MIGRATIONS: aplica las migraciones pendientes.
+#   SEED_CATALOG:   carga el catálogo del proveedor (idempotente: no pisa precios, stock ni fotos).
+ENV RUN_MIGRATIONS=true \
+    SEED_CATALOG=true
+
 CMD ["/entrypoint.sh"]

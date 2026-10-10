@@ -28,15 +28,26 @@ fi
 php artisan storage:link --force
 chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
-# Opcionales (apagados por defecto): se activan con variables de entorno en Dokploy.
-#   RUN_MIGRATIONS=true  -> php artisan migrate --force
+# Controlados por variables de entorno (valores por defecto en Dockerfile.dev / Dockerfile.prod).
+#   RUN_MIGRATIONS=true  -> php artisan migrate --force (si falla, el contenedor no arranca)
 #   SEED_CATALOG=true    -> carga el catálogo del proveedor (datos + fotos WebP). Es idempotente:
 #                           no duplica figuras ni pisa precios, stock o fotos ya capturados.
 if [ "$RUN_MIGRATIONS" = "true" ]; then
-    php artisan migrate --force
+    # Reintenta por si la base de datos todavía está arrancando.
+    tries=0
+    until php artisan migrate --force; do
+        tries=$((tries + 1))
+        if [ "$tries" -ge 10 ]; then
+            echo "ERROR: no se pudieron aplicar las migraciones"
+            exit 1
+        fi
+        echo "Migración fallida (intento $tries/10); reintentando en 5 s..."
+        sleep 5
+    done
 fi
 if [ "$SEED_CATALOG" = "true" ]; then
-    php artisan db:seed --class=Database\\Seeders\\CatalogSeeder --force
+    # No tumba el contenedor si el seeder falla: la app sigue arriba y el error queda en el log.
+    php artisan db:seed --class=Database\\Seeders\\CatalogSeeder --force || echo "AVISO: el seeder del catálogo falló"
 fi
 
 php artisan config:cache

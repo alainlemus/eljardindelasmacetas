@@ -6,6 +6,7 @@ use GdImage;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use RuntimeException;
 
@@ -22,6 +23,9 @@ class ImageOptimizer
 
     public const QUALITY = 80;
 
+    /** Megapíxeles máximos que se aceptan (evita agotar la memoria al decodificar). */
+    public const MAX_MEGAPIXELS = 60;
+
     /**
      * Optimiza y guarda la imagen; devuelve la ruta relativa al disco (p. ej. "funkomacetas/abc.webp").
      */
@@ -29,7 +33,13 @@ class ImageOptimizer
     {
         $path = trim($directory, '/').'/'.Str::random(40).'.webp';
 
-        Storage::disk($disk)->put($path, static::toWebp((string) file_get_contents($file->getRealPath())), 'public');
+        try {
+            $webp = static::toWebp((string) file_get_contents($file->getRealPath()));
+        } catch (RuntimeException $e) {
+            throw ValidationException::withMessages(['image' => $e->getMessage()]);
+        }
+
+        Storage::disk($disk)->put($path, $webp, 'public');
 
         return $path;
     }
@@ -39,6 +49,11 @@ class ImageOptimizer
      */
     public static function toWebp(string $binary, int $maxSide = self::MAX_SIDE, int $quality = self::QUALITY): string
     {
+        $size = @getimagesizefromstring($binary);
+        if ($size !== false && self::MAX_MEGAPIXELS * 1_000_000 < $size[0] * $size[1]) {
+            throw new RuntimeException('La imagen es demasiado grande (máximo '.self::MAX_MEGAPIXELS.' megapíxeles).');
+        }
+
         $image = static::decode($binary);
 
         $image = static::orient($image, $binary);

@@ -13,7 +13,9 @@ use Illuminate\Support\Str;
  *
  * - "cost" es lo que cuesta comprar la figura al proveedor.
  * - El precio de venta es costo × MARKUP, redondeado hacia arriba a múltiplos de $5.
- * - Las figuras sin costo quedan inactivas (ocultas en el catálogo) hasta que se les ponga precio.
+ * - Las figuras que el proveedor no trae con precio cuestan DEFAULT_COST ($85, confirmado por el
+ *   proveedor): se cargan con ese costo y su precio de venta, y quedan activas. Al volver a
+ *   correrlo también se les aplica a las ya cargadas que siguen sin costo ni precio.
  * - Las fotos salen del catálogo en PDF del proveedor, ya convertidas a WebP (data/images,
  *   mapeadas por SKU en data/catalogo_imagenes.json); se copian al disco público y solo se
  *   asignan a figuras que todavía no tienen foto.
@@ -23,6 +25,9 @@ use Illuminate\Support\Str;
 class CatalogSeeder extends Seeder
 {
     private const MARKUP = 2.0;
+
+    /** Costo de compra de las figuras sin precio en el catálogo del proveedor. */
+    private const DEFAULT_COST = 85;
 
     public function run(): void
     {
@@ -40,7 +45,7 @@ class CatalogSeeder extends Seeder
                 ['name' => $item['category'], 'is_active' => true],
             );
 
-            $cost = $item['cost'];
+            $cost = $item['cost'] ?? self::DEFAULT_COST;
             $slug = $usedSlugs[$sku] ?? $this->uniqueSlug($item['name'], $item['category'], $usedSlugs);
             $usedSlugs[$sku] = $slug;
 
@@ -56,10 +61,13 @@ class CatalogSeeder extends Seeder
             if ($isNew) {
                 $figure->fill([
                     'cost' => $cost,
-                    'price' => $cost ? ceil($cost * self::MARKUP / 5) * 5 : 0,
+                    'price' => $this->salePrice($cost),
                     'stock' => 0,
-                    'is_active' => $cost !== null,
+                    'is_active' => true,
                 ]);
+            } elseif ($figure->cost === null && (float) $figure->price <= 0) {
+                // Ya cargada antes sin precio y sin capturar nada a mano: se le aplica el costo.
+                $figure->fill(['cost' => $cost, 'price' => $this->salePrice($cost), 'is_active' => true]);
             }
 
             // Se asigna si no tiene foto, o se refresca si la foto es una de las que carga este seeder.
@@ -77,6 +85,11 @@ class CatalogSeeder extends Seeder
 
             $figure->save();
         }
+    }
+
+    private function salePrice(float|int $cost): float
+    {
+        return ceil($cost * self::MARKUP / 5) * 5;
     }
 
     private function uniqueSlug(string $name, string $category, array $used): string

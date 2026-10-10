@@ -47,15 +47,40 @@ class Figure extends Model
 
         static::creating(function (Figure $figure) {
             if (empty($figure->slug)) {
-                $figure->slug = Str::slug($figure->name);
+                $figure->slug = static::uniqueSlug($figure->name, $figure->category?->name);
             }
         });
 
         static::updating(function (Figure $figure) {
             if ($figure->isDirty('name') && ! $figure->isDirty('slug')) {
-                $figure->slug = Str::slug($figure->name);
+                $figure->slug = static::uniqueSlug($figure->name, $figure->category?->name, $figure->id);
             }
         });
+    }
+
+    /**
+     * Slug único: el nombre solo; si ya existe (p. ej. "Elsa" en Personajes y en Posket),
+     * se le agrega la categoría y, como último recurso, un número.
+     */
+    public static function uniqueSlug(string $name, ?string $category = null, ?int $ignoreId = null): string
+    {
+        $taken = fn (string $slug): bool => static::query()
+            ->where('slug', $slug)
+            ->when($ignoreId, fn ($q) => $q->where('id', '!=', $ignoreId))
+            ->exists();
+
+        $slug = Str::slug($name);
+
+        if ($taken($slug) && $category) {
+            $slug = Str::slug($name.' '.$category);
+        }
+
+        $base = $slug;
+        for ($n = 2; $taken($slug); $n++) {
+            $slug = $base.'-'.$n;
+        }
+
+        return $slug;
     }
 
     public function category(): BelongsTo

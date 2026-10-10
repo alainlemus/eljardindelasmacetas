@@ -24,6 +24,7 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     // "products" se conserva como alias de "figures" por compatibilidad con la app móvil.
     foreach (['figures', 'products'] as $prefix) {
         Route::get("{$prefix}/top-selling", [FigureController::class, 'topSelling']);
+        Route::get("{$prefix}/stats", [FigureController::class, 'stats']);
         Route::apiResource($prefix, FigureController::class)->parameters([$prefix => 'figure'])->names(
             collect(['index', 'store', 'show', 'update', 'destroy'])
                 ->mapWithKeys(fn ($m) => [$m => "{$prefix}.{$m}"])->all()

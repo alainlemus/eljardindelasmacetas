@@ -22,7 +22,7 @@ class CategoryController extends Controller
     public function store(Request $request): JsonResponse
     {
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|unique:categories,name',
             'description' => 'nullable|string',
             'is_active' => 'boolean',
         ]);
@@ -52,7 +52,7 @@ class CategoryController extends Controller
     public function update(Request $request, Category $category): JsonResponse
     {
         $request->validate([
-            'name' => 'sometimes|required|string|max:255',
+            'name' => 'sometimes|required|string|max:255|unique:categories,name,'.$category->id,
             'description' => 'nullable|string',
             'is_active' => 'boolean',
         ]);
@@ -74,7 +74,7 @@ class CategoryController extends Controller
     {
         if ($category->figures()->count() > 0) {
             return response()->json([
-                'message' => 'No se puede eliminar la categoría porque tiene productos asociados',
+                'message' => 'No se puede eliminar la categoría porque tiene figuras asociadas',
             ], 422);
         }
 

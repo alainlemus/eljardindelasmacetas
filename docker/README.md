@@ -123,24 +123,21 @@ docker compose up -d
 - MySQL: 3307 (external)
 - Redis: 6380 (external)
 
-## Cargar el catálogo en staging / develop
+## Migraciones y catálogo al arrancar
 
-En Dokploy, en las variables de entorno del servicio de staging agrega (y redespliega):
+`docker/entrypoint.sh` corre estas tareas al iniciar el contenedor, según variables de entorno
+cuyos valores por defecto vienen en cada Dockerfile (Dokploy puede sobrescribirlos):
 
-```
-RUN_MIGRATIONS=true   # aplica las migraciones pendientes al arrancar
-SEED_CATALOG=true     # carga las 585 figuras del proveedor con sus fotos WebP
-```
+| Variable | `Dockerfile.dev` | `Dockerfile.prod` | Qué hace |
+|---|---|---|---|
+| `RUN_MIGRATIONS` | `true` | `true` | `php artisan migrate --force` (si falla, el contenedor no arranca) |
+| `SEED_CATALOG` | `true` | `false` | Carga las 585 figuras del proveedor con sus fotos WebP |
 
-Ambas están apagadas por defecto. El seeder es idempotente: se puede dejar activo o
-quitarlo después sin riesgo (no duplica, no pisa precios, stock ni fotos subidas a mano).
-También se puede correr a mano en la terminal del contenedor:
+El seeder es idempotente: no duplica ni pisa precios, stock o fotos subidas a mano. En producción
+actívalo una sola vez con `SEED_CATALOG=true` y quítalo después.
 
-```bash
-php artisan migrate --force
-php artisan db:seed --class='Database\Seeders\CatalogSeeder' --force
-```
+> Respalda la base antes del primer despliegue con migraciones: `merge_funkomacetas_into_figures`
+> borra la tabla `funkomacetas` y no es reversible.
 
-> La migración `merge_funkomacetas_into_figures` borra la tabla `funkomacetas` y no es
-> reversible: respalda la base de staging antes del primer despliegue con `RUN_MIGRATIONS=true`.
-
+Las variables de Dokploy (`APP_DEBUG`, `APP_URL`, etc.) mandan sobre el `.env` de la imagen:
+en dev y producción debe estar `APP_DEBUG=false`.

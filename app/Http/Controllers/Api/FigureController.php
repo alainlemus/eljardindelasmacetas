@@ -4,10 +4,10 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\FigureResource;
+use App\Models\Category;
 use App\Models\Figure;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 
 class FigureController extends Controller
 {
@@ -15,7 +15,12 @@ class FigureController extends Controller
     {
         $query = Figure::with('category');
 
-        if ($request->has('category_id')) {
+        if ($request->filled('search')) {
+            $term = '%'.addcslashes($request->string('search')->toString(), '%_\\').'%';
+            $query->where(fn ($q) => $q->where('name', 'like', $term)->orWhere('sku', 'like', $term));
+        }
+
+        if ($request->filled('category_id')) {
             $query->where('category_id', $request->category_id);
         }
 
@@ -23,15 +28,47 @@ class FigureController extends Controller
             $query->where('is_featured', $request->boolean('featured'));
         }
 
-        if ($request->has('in_stock')) {
+        if ($request->has('active')) {
+            $query->where('is_active', $request->boolean('active'));
+        }
+
+        if ($request->boolean('in_stock')) {
             $query->where('stock', '>', 0);
         }
 
-        $figures = $query->paginate($request->get('per_page', 15));
+        if ($request->boolean('no_price')) {
+            $query->where('price', '<=', 0);
+        }
+
+        if ($request->boolean('low_stock')) {
+            $query->where('stock', '>', 0)->lowStock();
+        }
+
+        $figures = $query->orderBy('name')->paginate(min((int) $request->get('per_page', 15), 100));
 
         return response()->json(
             $figures->through(fn ($figure) => new FigureResource($figure))
         );
+    }
+
+    /** Totales del inventario completo (no solo de la página visible). */
+    public function stats(): JsonResponse
+    {
+        $lowStock = Figure::active()->where('stock', '>', 0)->lowStock();
+
+        return response()->json([
+            'data' => [
+                'total' => Figure::count(),
+                'active' => Figure::active()->count(),
+                'inactive' => Figure::where('is_active', false)->count(),
+                'no_price' => Figure::where('price', '<=', 0)->count(),
+                'low_stock' => (clone $lowStock)->count(),
+                'out_of_stock' => Figure::active()->where('stock', 0)->count(),
+                'inventory_value' => (float) Figure::selectRaw('COALESCE(SUM(price * stock), 0) as total')->value('total'),
+                'categories' => Category::count(),
+                'low_stock_items' => FigureResource::collection((clone $lowStock)->orderBy('stock')->limit(5)->get()),
+            ],
+        ]);
     }
 
     public function store(Request $request): JsonResponse
@@ -53,7 +90,6 @@ class FigureController extends Controller
 
         $figure = Figure::create([
             'name' => $request->name,
-            'slug' => Str::slug($request->name),
             'description' => $request->description,
             'price' => $request->price,
             'cost' => $request->cost,
@@ -114,11 +150,6 @@ class FigureController extends Controller
             $figure->images = $this->extractStoragePaths($request->images ?? []);
         }
         $figure->save();
-
-        if ($request->has('name')) {
-            $figure->slug = Str::slug($request->name);
-            $figure->save();
-        }
 
         $figure->load('category');
 

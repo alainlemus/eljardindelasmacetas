@@ -104,8 +104,57 @@ class ExampleTest extends TestCase
         $this->seed(CatalogSeeder::class);
 
         $this->assertSame(585, Figure::count());
+        $this->assertSame(0, Figure::whereNull('cost')->count());
+        $this->assertSame(0, Figure::where('price', '<=', 0)->count());
+        $this->assertSame(585, Figure::active()->count());
+        $this->assertEquals(85, Figure::where('name', 'Aladinn')->value('cost')); // sin precio en el Excel
+        $this->assertEquals(170, Figure::where('name', 'Aladinn')->value('price'));
+        $this->assertEquals(95, Figure::where('name', 'Tiranosaurus')->value('cost')); // con precio en el Excel
+        $this->assertEquals(190, Figure::where('name', 'Tiranosaurus')->value('price'));
         $withImage = Figure::whereNotNull('image')->count();
         $this->assertGreaterThan(350, $withImage);
         $this->assertStringEndsWith('.webp', Figure::whereNotNull('image')->first()->image);
+    }
+
+    public function test_figures_api_filters_and_stats(): void
+    {
+        $admin = User::factory()->create(['is_admin' => true]);
+        $category = Category::factory()->create();
+        Figure::factory()->create(['category_id' => $category->id, 'name' => 'Goku', 'sku' => 'FM-1', 'price' => 0, 'is_active' => false, 'stock' => 0]);
+        Figure::factory()->create(['category_id' => $category->id, 'name' => 'Vegeta', 'sku' => 'FM-2', 'price' => 200, 'stock' => 2, 'min_stock' => 5]);
+
+        $this->actingAs($admin, 'sanctum');
+
+        $this->getJson('/api/figures?search=goku')->assertOk()->assertJsonCount(1, 'data');
+        $this->getJson('/api/figures?no_price=1')->assertOk()->assertJsonCount(1, 'data')->assertJsonPath('data.0.name', 'Goku');
+        $this->getJson('/api/figures?active=0')->assertOk()->assertJsonCount(1, 'data');
+        $this->getJson('/api/figures?search=100%25')->assertOk()->assertJsonCount(0, 'data');
+
+        $this->getJson('/api/figures/stats')->assertOk()
+            ->assertJsonPath('data.total', 2)
+            ->assertJsonPath('data.inactive', 1)
+            ->assertJsonPath('data.no_price', 1)
+            ->assertJsonPath('data.low_stock', 1)
+            ->assertJsonPath('data.inventory_value', 400);
+    }
+
+    public function test_catalog_seeder_prices_figures_loaded_before_without_touching_captured_ones(): void
+    {
+        Storage::fake('public');
+        $this->seed(CatalogSeeder::class);
+
+        // Simula el estado anterior: una sin precio, otra con precio capturado a mano.
+        $sinPrecio = Figure::where('sku', 'FM-0001')->first();
+        $sinPrecio->update(['cost' => null, 'price' => 0, 'is_active' => false]);
+        $capturada = Figure::where('sku', 'FM-0002')->first();
+        $capturada->update(['cost' => 100, 'price' => 300, 'is_active' => false]);
+
+        $this->seed(CatalogSeeder::class);
+
+        $this->assertEquals(85, $sinPrecio->fresh()->cost);
+        $this->assertEquals(170, $sinPrecio->fresh()->price);
+        $this->assertTrue($sinPrecio->fresh()->is_active);
+        $this->assertEquals(300, $capturada->fresh()->price); // no se pisa lo capturado
+        $this->assertFalse($capturada->fresh()->is_active);
     }
 }
