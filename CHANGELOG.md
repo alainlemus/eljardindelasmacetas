@@ -12,6 +12,16 @@ a `main`, la GitHub Action `release.yml` crea la etiqueta `vX.Y.Z` y el Release 
 estas notas. Fuera de producción la versión se muestra como `vX.Y.Z-dev · commit`.
 El encabezado de cada sección debe ser exacto: `## [X.Y.Z] - AAAA-MM-DD`.
 
+## [1.1.0] - 2026-10-09
+
+### Agregado
+- La API de figuras permite buscar por nombre o SKU y filtrar por activas, inactivas, sin precio, stock bajo y categoría; el listado viene ordenado por nombre y admite hasta 100 por página.
+- Nuevo `GET /api/figures/stats` con los totales de todo el inventario (figuras, activas, sin precio, stock bajo, valor del inventario y categorías), que usa el tablero de la app.
+- Migraciones automáticas en cada despliegue (`RUN_MIGRATIONS`) y carga del catálogo en dev (`SEED_CATALOG`); en producción el catálogo queda apagado.
+
+### Cambiado
+- La app móvil debe ser la versión 2.0.0 o posterior (usa las rutas `/api/figures`).
+
 ## [1.0.0] - 2026-10-09
 
 ### Agregado
