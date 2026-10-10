@@ -8,7 +8,6 @@ use App\Models\Category;
 use App\Models\Figure;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 
 class FigureController extends Controller
 {
@@ -91,7 +90,6 @@ class FigureController extends Controller
 
         $figure = Figure::create([
             'name' => $request->name,
-            'slug' => Str::slug($request->name),
             'description' => $request->description,
             'price' => $request->price,
             'cost' => $request->cost,
@@ -152,11 +150,6 @@ class FigureController extends Controller
             $figure->images = $this->extractStoragePaths($request->images ?? []);
         }
         $figure->save();
-
-        if ($request->has('name')) {
-            $figure->slug = Str::slug($request->name);
-            $figure->save();
-        }
 
         $figure->load('category');
 
