@@ -12,6 +12,11 @@ a `main`, la GitHub Action `release.yml` crea la etiqueta `vX.Y.Z` y el Release 
 estas notas. Fuera de producción la versión se muestra como `vX.Y.Z-dev · commit`.
 El encabezado de cada sección debe ser exacto: `## [X.Y.Z] - AAAA-MM-DD`.
 
+## [1.1.4] - 2026-10-10
+
+### Corregido
+- Con `APP_LOCALE=es` los errores de validación salían como `validation.required` porque no había textos en español; se agregaron (`lang/es`) y el español queda como idioma por defecto. La app y la API ahora muestran mensajes como "El campo nombre es obligatorio.".
+
 ## [1.1.3] - 2026-10-10
 
 ### Cambiado

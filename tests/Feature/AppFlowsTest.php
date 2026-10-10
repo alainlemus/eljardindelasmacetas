@@ -329,4 +329,15 @@ class AppFlowsTest extends TestCase
         // El administrador sí ve el costo en su listado.
         $this->asAdmin()->getJson("/api/figures/{$visible->id}")->assertJsonPath('data.cost', '99.00');
     }
+
+    public function test_validation_errors_come_in_spanish(): void
+    {
+        $this->asAdmin()->postJson('/api/figures', [])
+            ->assertStatus(422)
+            ->assertJsonPath('errors.name.0', 'El campo nombre es obligatorio.')
+            ->assertJsonPath('errors.sku.0', 'El campo SKU es obligatorio.');
+
+        $this->postJson('/api/figures', $this->payload(['price' => -5]))
+            ->assertJsonPath('errors.price.0', 'El campo precio debe ser al menos 0.');
+    }
 }
