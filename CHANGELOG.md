@@ -12,6 +12,14 @@ a `main`, la GitHub Action `release.yml` crea la etiqueta `vX.Y.Z` y el Release 
 estas notas. Fuera de producción la versión se muestra como `vX.Y.Z-dev · commit`.
 El encabezado de cada sección debe ser exacto: `## [X.Y.Z] - AAAA-MM-DD`.
 
+## [1.1.1] - 2026-10-10
+
+### Corregido
+- **Seguridad:** el inicio de sesión y `/api/auth/me` devolvían el hash de la contraseña y el `remember_token` del usuario; ya no se envían.
+- Guardar una figura con un nombre que ya existe en otra categoría (por ejemplo "Cenicienta" en Personajes y en Posket) daba un error 500; ahora cada figura conserva un identificador (slug) único.
+- Una imagen dañada o enorme respondía con error 500; ahora responde 422 con un mensaje claro.
+- Las categorías no pueden repetir nombre.
+
 ## [1.1.0] - 2026-10-09
 
 ### Agregado
