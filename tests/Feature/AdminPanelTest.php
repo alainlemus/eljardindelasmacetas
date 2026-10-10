@@ -11,6 +11,8 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\Testing\TestAction;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -170,6 +172,50 @@ class AdminPanelTest extends TestCase
 
         $this->assertModelExists($figure);
         $this->assertNull($figure->fresh()->category_id);
+    }
+
+    public function test_panel_uploads_are_converted_to_webp_and_resized(): void
+    {
+        Storage::fake('public');
+
+        Livewire::actingAs($this->admin)->test(ManageFigures::class)
+            ->callAction('create', [
+                'name' => 'Con foto',
+                'slug' => 'con-foto',
+                'sku' => 'FM-9100',
+                'price' => 160,
+                'stock' => 1,
+                'min_stock' => 1,
+                'image' => UploadedFile::fake()->image('principal.jpg', 3000, 2000),
+                'images' => [UploadedFile::fake()->image('extra.png', 800, 600)],
+            ])
+            ->assertHasNoFormErrors();
+
+        $figure = Figure::where('sku', 'FM-9100')->firstOrFail();
+        $this->assertStringEndsWith('.webp', $figure->image);
+        Storage::disk('public')->assertExists($figure->image);
+
+        $info = getimagesizefromstring(Storage::disk('public')->get($figure->image));
+        $this->assertSame('image/webp', $info['mime']);
+        $this->assertSame(\App\Support\ImageOptimizer::MAX_SIDE, max($info[0], $info[1]));
+
+        $this->assertCount(1, $figure->images);
+        $this->assertStringEndsWith('.webp', $figure->images[0]);
+        Storage::disk('public')->assertExists($figure->images[0]);
+    }
+
+    public function test_panel_rejects_files_that_are_not_images(): void
+    {
+        Storage::fake('public');
+
+        Livewire::actingAs($this->admin)->test(ManageFigures::class)
+            ->callAction('create', [
+                'name' => 'Mala', 'slug' => 'mala', 'sku' => 'FM-9101', 'price' => 160, 'stock' => 1, 'min_stock' => 1,
+                'image' => UploadedFile::fake()->create('nota.txt', 5, 'text/plain'),
+            ])
+            ->assertHasActionErrors(['image']);
+
+        $this->assertDatabaseMissing('figures', ['sku' => 'FM-9101']);
     }
 
     public function test_logout_works(): void
