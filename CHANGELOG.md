@@ -12,6 +12,11 @@ a `main`, la GitHub Action `release.yml` crea la etiqueta `vX.Y.Z` y el Release 
 estas notas. Fuera de producción la versión se muestra como `vX.Y.Z-dev · commit`.
 El encabezado de cada sección debe ser exacto: `## [X.Y.Z] - AAAA-MM-DD`.
 
+## [1.5.0] - 2026-10-10
+
+### Cambiado
+- La pantalla de inicio de sesión del panel (`/admin/login`) ahora tiene dos secciones: a la izquierda la marca (logo, mensaje y círculos, burbujas y hojitas animados) y a la derecha el formulario con el saludo "Bienvenido de nuevo", la versión y un enlace al catálogo. En celular la marca queda arriba y el formulario abajo; funciona en modo claro y oscuro y respeta "reducir movimiento".
+
 ## [1.4.0] - 2026-10-10
 
 ### Agregado

@@ -2,6 +2,7 @@
 
 namespace App\Filament;
 
+use App\Filament\Pages\Auth\Login;
 use App\Filament\Pages\Dashboard;
 use App\Filament\Widgets\InventoryStats;
 use Filament\Http\Middleware\Authenticate;
@@ -24,7 +25,7 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
-            ->login()
+            ->login(Login::class)
             ->brandName('El Jardín de las Macetas')
             ->brandLogo(asset('images/logo.png'))
             ->brandLogoHeight('3rem')
