@@ -12,7 +12,7 @@ use Illuminate\Support\Str;
  * Carga el catálogo del proveedor (Catalogo_Funko_Macetas.xlsx → data/catalogo.json).
  *
  * - "cost" es lo que cuesta comprar la figura al proveedor.
- * - El precio de venta es costo × MARKUP, redondeado hacia arriba a múltiplos de $5.
+ * - El precio de venta es el costo + MARGIN ($75: costo $85 → venta $160).
  * - Las figuras que el proveedor no trae con precio cuestan DEFAULT_COST ($85, confirmado por el
  *   proveedor): se cargan con ese costo y su precio de venta, y quedan activas. Al volver a
  *   correrlo también se les aplica a las ya cargadas que siguen sin costo ni precio.
@@ -24,7 +24,11 @@ use Illuminate\Support\Str;
  */
 class CatalogSeeder extends Seeder
 {
-    private const MARKUP = 2.0;
+    /** Ganancia por figura: precio de venta = costo + MARGIN. */
+    private const MARGIN = 75;
+
+    /** Fórmula anterior (costo × 2 redondeado a $5); solo sirve para corregir precios que calculó este seeder. */
+    private const LEGACY_MARKUP = 2.0;
 
     /** Costo de compra de las figuras sin precio en el catálogo del proveedor. */
     private const DEFAULT_COST = 85;
@@ -65,6 +69,9 @@ class CatalogSeeder extends Seeder
                     'stock' => 0,
                     'is_active' => true,
                 ]);
+            } elseif ($figure->cost !== null && $this->isLegacyPrice($figure)) {
+                // Precio que calculó este seeder con la fórmula anterior (costo × 2): se corrige.
+                $figure->price = $this->salePrice((float) $figure->cost);
             } elseif ($figure->cost === null && (float) $figure->price <= 0) {
                 // Ya cargada antes sin precio y sin capturar nada a mano: se le aplica el costo.
                 $figure->fill(['cost' => $cost, 'price' => $this->salePrice($cost), 'is_active' => true]);
@@ -89,7 +96,15 @@ class CatalogSeeder extends Seeder
 
     private function salePrice(float|int $cost): float
     {
-        return ceil($cost * self::MARKUP / 5) * 5;
+        return $cost + self::MARGIN;
+    }
+
+    private function isLegacyPrice(Figure $figure): bool
+    {
+        $legacy = ceil((float) $figure->cost * self::LEGACY_MARKUP / 5) * 5;
+
+        return abs((float) $figure->price - $legacy) < 0.01
+            && abs((float) $figure->price - $this->salePrice((float) $figure->cost)) >= 0.01;
     }
 
     private function uniqueSlug(string $name, string $category, array $used): string

@@ -108,9 +108,9 @@ class ExampleTest extends TestCase
         $this->assertSame(0, Figure::where('price', '<=', 0)->count());
         $this->assertSame(585, Figure::active()->count());
         $this->assertEquals(85, Figure::where('name', 'Aladinn')->value('cost')); // sin precio en el Excel
-        $this->assertEquals(170, Figure::where('name', 'Aladinn')->value('price'));
+        $this->assertEquals(160, Figure::where('name', 'Aladinn')->value('price'));
         $this->assertEquals(95, Figure::where('name', 'Tiranosaurus')->value('cost')); // con precio en el Excel
-        $this->assertEquals(190, Figure::where('name', 'Tiranosaurus')->value('price'));
+        $this->assertEquals(170, Figure::where('name', 'Tiranosaurus')->value('price')); // costo + $75
         $withImage = Figure::whereNotNull('image')->count();
         $this->assertGreaterThan(350, $withImage);
         $this->assertStringEndsWith('.webp', Figure::whereNotNull('image')->first()->image);
@@ -152,9 +152,30 @@ class ExampleTest extends TestCase
         $this->seed(CatalogSeeder::class);
 
         $this->assertEquals(85, $sinPrecio->fresh()->cost);
-        $this->assertEquals(170, $sinPrecio->fresh()->price);
+        $this->assertEquals(160, $sinPrecio->fresh()->price);
         $this->assertTrue($sinPrecio->fresh()->is_active);
         $this->assertEquals(300, $capturada->fresh()->price); // no se pisa lo capturado
         $this->assertFalse($capturada->fresh()->is_active);
+    }
+
+    public function test_catalog_seeder_fixes_prices_it_calculated_with_the_old_formula(): void
+    {
+        Storage::fake('public');
+        $this->seed(CatalogSeeder::class);
+
+        // Estado anterior: costo × 2 redondeado a $5.
+        $a = Figure::where('sku', 'FM-0001')->first();
+        $a->update(['cost' => 85, 'price' => 170]);
+        $b = Figure::where('name', 'Tiranosaurus')->first();
+        $b->update(['cost' => 95, 'price' => 190]);
+        $c = Figure::where('sku', 'FM-0002')->first();
+        $c->update(['cost' => 85, 'price' => 200]); // precio capturado a mano
+
+        $this->seed(CatalogSeeder::class);
+
+        $this->assertEquals(160, $a->fresh()->price);
+        $this->assertEquals(170, $b->fresh()->price);
+        $this->assertEquals(200, $c->fresh()->price);
+        $this->assertEquals(85, $a->fresh()->cost); // el costo nunca cambia
     }
 }
