@@ -17,6 +17,7 @@ El encabezado de cada sección debe ser exacto: `## [X.Y.Z] - AAAA-MM-DD`.
 ### Corregido
 - El tablero del panel aparecía vacío porque su widget esperaba a cargarse por scroll; ahora carga con la página.
 - Los precios del panel salían como "160,00 US$"; ahora se muestran en pesos ($160.00).
+- Al escribir el nombre en el formulario de Figura o Categoría el panel marcaba error; ahora el campo "slug" se llena solo.
 - Acentos en el panel (Catálogo, Categoría, Descripción, Stock mínimo, Imágenes).
 
 ### Cambiado

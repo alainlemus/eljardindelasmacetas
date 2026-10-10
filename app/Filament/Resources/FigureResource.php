@@ -8,6 +8,7 @@ use App\Support\ImageOptimizer;
 use Filament\Actions;
 use Filament\Forms;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -48,7 +49,7 @@ class FigureResource extends Resource
                     ->maxLength(255)
                     ->columnSpan(2)
                     ->live()
-                    ->afterStateUpdated(fn (Forms\Set $set, ?string $state) => $set('slug', Str::slug($state))
+                    ->afterStateUpdated(fn (Set $set, ?string $state) => $set('slug', Str::slug($state))
                     ),
                 Forms\Components\TextInput::make('slug')
                     ->required()
