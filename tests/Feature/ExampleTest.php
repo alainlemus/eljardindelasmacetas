@@ -178,4 +178,16 @@ class ExampleTest extends TestCase
         $this->assertEquals(200, $c->fresh()->price);
         $this->assertEquals(85, $a->fresh()->cost); // el costo nunca cambia
     }
+
+    public function test_catalog_seeder_removes_untouched_legacy_sample_figures_only(): void
+    {
+        Storage::fake('public');
+        Figure::factory()->create(['sku' => 'FIG-MARVEL-001', 'name' => 'Iron Man', 'category_id' => null, 'cost' => null, 'price' => 0]);
+        $edited = Figure::factory()->create(['sku' => 'FIG-DC-001', 'name' => 'Batman', 'category_id' => null, 'cost' => null, 'price' => 250]);
+
+        $this->seed(CatalogSeeder::class);
+
+        $this->assertDatabaseMissing('figures', ['sku' => 'FIG-MARVEL-001']);
+        $this->assertDatabaseHas('figures', ['id' => $edited->id]); // con precio capturado: se conserva
+    }
 }

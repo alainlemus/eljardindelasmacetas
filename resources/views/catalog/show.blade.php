@@ -1,20 +1,73 @@
 @extends('layouts.catalog')
 
-@section('title', $figure->name.' - El Jardín de las Macetas')
-@section('description', \Illuminate\Support\Str::limit($figure->description ?: $figure->name.' - maceta artesanal de El Jardín de las Macetas', 150))
-@if ($figure->image_url)
-    @section('og_image', str_starts_with($figure->image_url, 'http') ? $figure->image_url : url($figure->image_url))
-@endif
+@php
+    $absolute = fn (string $u): string => str_starts_with($u, 'http') ? $u : url($u);
+    $gallery = array_map($absolute, $figure->gallery);
+    $desc = \Illuminate\Support\Str::limit(trim(strip_tags($figure->description ?: '')), 150, '…');
+    $metaDesc = ($desc ?: $figure->name.' - maceta artesanal Funko Pop')
+        .($figure->price > 0 ? ' Precio: '.$figure->formatted_price.' MXN.' : '').' Pídela por WhatsApp.';
+@endphp
+
+@section('title', $figure->name.' | Maceta Funko Pop - '.config('seo.site_name'))
+@section('description', $metaDesc)
+@section('canonical', route('catalog.product', $figure->slug))
+@section('og_type', 'product')
+@section('toggle_pos', 'bottom-44') {{-- sube el botón ✨ para no tapar la barra de pedido en móvil --}}
+@section('og_image', route('og.figure', $figure->slug))
+@section('og_extra')
+    <meta property="og:image:type" content="image/jpeg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    @if ($figure->price > 0)
+        <meta property="product:price:amount" content="{{ number_format($figure->price, 2, '.', '') }}">
+        <meta property="product:price:currency" content="{{ config('seo.currency') }}">
+    @endif
+@endsection
+
+@push('jsonld')
+    <script type="application/ld+json">
+        {!! json_encode(array_filter([
+            '@context' => 'https://schema.org',
+            '@graph' => [
+                array_filter([
+                    '@type' => 'Product',
+                    'name' => $figure->name,
+                    'description' => $desc ?: $figure->name.' - maceta artesanal Funko Pop',
+                    'sku' => $figure->sku,
+                    'image' => $gallery ?: null,
+                    'category' => $figure->category?->name,
+                    'brand' => ['@type' => 'Brand', 'name' => config('seo.site_name')],
+                    'offers' => $figure->price > 0 ? [
+                        '@type' => 'Offer',
+                        'url' => route('catalog.product', $figure->slug),
+                        'priceCurrency' => config('seo.currency'),
+                        'price' => number_format($figure->price, 2, '.', ''),
+                        'availability' => $figure->stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/PreOrder',
+                        'itemCondition' => 'https://schema.org/NewCondition',
+                        'seller' => ['@type' => 'Organization', 'name' => config('seo.site_name')],
+                    ] : null,
+                ]),
+                [
+                    '@type' => 'BreadcrumbList',
+                    'itemListElement' => array_values(array_filter([
+                        ['@type' => 'ListItem', 'position' => 1, 'name' => 'Catálogo', 'item' => route('home')],
+                        $figure->category ? ['@type' => 'ListItem', 'position' => 2, 'name' => $figure->category->name, 'item' => route('home', ['category' => $figure->category->slug])] : null,
+                        ['@type' => 'ListItem', 'position' => $figure->category ? 3 : 2, 'name' => $figure->name, 'item' => route('catalog.product', $figure->slug)],
+                    ])),
+                ],
+            ],
+        ]), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG) !!}
+    </script>
+@endpush
 
 @section('content')
-    @php($gallery = $figure->gallery)
     <div class="mx-auto max-w-6xl px-4 pb-24 pt-6 md:pb-0">
         <nav aria-label="Breadcrumb" class="mb-4 text-sm font-semibold">
             <ol class="flex flex-wrap items-center gap-2 text-clay-800/60">
-                <li><a href="{{ route('catalog') }}" class="text-leaf-600 hover:underline">Catálogo</a></li>
+                <li><a href="{{ route('home') }}" class="text-leaf-600 hover:underline">Catálogo</a></li>
                 @if ($figure->category)
                     <li aria-hidden="true">/</li>
-                    <li><a href="{{ route('catalog', ['category' => $figure->category->slug]) }}" class="text-leaf-600 hover:underline">{{ $figure->category->name }}</a></li>
+                    <li><a href="{{ route('home', ['category' => $figure->category->slug]) }}" class="text-leaf-600 hover:underline">{{ $figure->category->name }}</a></li>
                 @endif
                 <li aria-hidden="true">/</li>
                 <li aria-current="page" class="truncate">{{ $figure->name }}</li>
@@ -25,9 +78,9 @@
             <div>
                 <div class="relative aspect-square overflow-hidden rounded-3xl bg-cream-100">
                     @if ($gallery)
-                        <img id="mainImage" src="{{ $gallery[0] }}" alt="{{ $figure->name }}" class="h-full w-full object-cover transition-opacity duration-150">
+                        <img id="mainImage" src="{{ $gallery[0] }}" alt="{{ $figure->name }} - maceta Funko Pop" width="800" height="800" fetchpriority="high" class="h-full w-full object-cover transition-opacity duration-150">
                     @else
-                        <div class="flex h-full items-center justify-center"><img src="{{ asset('images/logo.png') }}" alt="" class="h-1/2 w-1/2 object-contain opacity-30 grayscale"></div>
+                        <div class="flex h-full items-center justify-center"><img src="{{ asset('images/logo.png') }}" alt="" width="200" height="200" class="h-1/2 w-1/2 object-contain opacity-30 grayscale"></div>
                     @endif
                     @if ($figure->is_featured)
                         <span class="absolute left-3 top-3 rounded-full bg-sun-400 px-3 py-1 text-xs font-extrabold text-clay-800 shadow">★ Destacada</span>
@@ -38,7 +91,7 @@
                         @foreach ($gallery as $i => $url)
                             <button type="button" data-url="{{ $url }}" aria-label="Ver foto {{ $i + 1 }} de {{ count($gallery) }}"
                                 class="thumb h-16 w-16 shrink-0 overflow-hidden rounded-2xl border-2 {{ $i === 0 ? 'border-leaf-500' : 'border-transparent' }} md:h-20 md:w-20">
-                                <img src="{{ $url }}" alt="" loading="lazy" class="h-full w-full object-cover">
+                                <img src="{{ $url }}" alt="Foto {{ $i + 1 }} de {{ $figure->name }}" width="80" height="80" loading="lazy" class="h-full w-full object-cover">
                             </button>
                         @endforeach
                     </div>
@@ -50,7 +103,7 @@
                     <span class="text-sm font-bold uppercase tracking-wide text-leaf-600">{{ $figure->category->name }}</span>
                 @endif
                 <h1 class="mt-1 text-3xl font-semibold leading-tight md:text-4xl">{{ $figure->name }}</h1>
-                <p class="mt-1 text-sm text-clay-800/50">SKU: {{ $figure->sku }}</p>
+                <p class="mt-1 text-sm text-clay-800/70">SKU: {{ $figure->sku }}</p>
 
                 <p class="mt-5 font-display text-5xl font-semibold text-berry-600 tabular-nums">{{ $figure->formatted_price }}</p>
 

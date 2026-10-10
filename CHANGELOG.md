@@ -12,6 +12,34 @@ a `main`, la GitHub Action `release.yml` crea la etiqueta `vX.Y.Z` y el Release 
 estas notas. Fuera de producción la versión se muestra como `vX.Y.Z-dev · commit`.
 El encabezado de cada sección debe ser exacto: `## [X.Y.Z] - AAAA-MM-DD`.
 
+## [1.4.0] - 2026-10-10
+
+### Agregado
+- Al compartir el enlace de una figura en WhatsApp, Facebook, X u otras redes sale una tarjeta con su foto, nombre, precio y el botón "Pídela por WhatsApp" (imagen JPEG de 1200×630 y menos de 300 KB, como piden las redes); se regenera sola si la figura cambia. El enlace del catálogo usa la imagen de portada del sitio.
+
+### Cambiado
+- Las fuentes (Fredoka y Nunito) se sirven desde el propio sitio en vez de Google Fonts: carga más rápida y sin pedir nada a terceros.
+- El seeder del catálogo borra las 8 figuras de ejemplo del primer seeder (Iron Man, etc.) mientras sigan sin categoría ni precio; si ya las editaste, no las toca.
+
+### Corregido
+- En el celular, el botón ✨ se encimaba con la barra de pedido de la ficha de la figura.
+
+## [1.3.0] - 2026-10-10
+
+### Agregado
+- SEO: `robots.txt` y `sitemap.xml` generados por el sitio (el sitemap lista las figuras activas y las categorías), título y descripción propios por categoría y por figura, URL canónica única, datos estructurados (Organización, Sitio web, Producto con precio y disponibilidad, migas de pan) y etiquetas completas para compartir en redes (Open Graph y Twitter).
+- Dev y staging ya no se indexan en buscadores (`noindex` y `Disallow: /`); se detectan por el dominio (`dev.`, `staging.`, `.test`) o con `SITE_INDEXABLE`.
+- Página 404 con el diseño del sitio y página de error 500/503 propias.
+- Enlace "Saltar al contenido" y textos alternativos y dimensiones en todas las imágenes (menos saltos al cargar); las primeras fotos cargan con prioridad.
+
+### Cambiado
+- `/catalog` redirige a `/` (una sola URL para el listado); las búsquedas no se indexan.
+- El catálogo público no crea sesión ni cookies por visitante (menos carga en la base de datos) y se puede cachear 1 minuto en el navegador y 5 en CDN.
+- Servidor: encabezados de seguridad (`Referrer-Policy`, `Permissions-Policy`), sin versión de nginx ni de PHP, archivos de `/build` con caché de un año y compresión también para JSON.
+
+### Corregido
+- `robots.txt` permitía indexar `/admin` y `/api`, y no apuntaba a un sitemap.
+
 ## [1.2.0] - 2026-10-10
 
 ### Agregado
