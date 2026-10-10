@@ -12,10 +12,12 @@
 @section('description', $metaDesc)
 @section('canonical', route('catalog.product', $figure->slug))
 @section('og_type', 'product')
-@if ($gallery)
-    @section('og_image', $gallery[0])
-@endif
+@section('toggle_pos', 'bottom-44') {{-- sube el botón ✨ para no tapar la barra de pedido en móvil --}}
+@section('og_image', route('og.figure', $figure->slug))
 @section('og_extra')
+    <meta property="og:image:type" content="image/jpeg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
     @if ($figure->price > 0)
         <meta property="product:price:amount" content="{{ number_format($figure->price, 2, '.', '') }}">
         <meta property="product:price:currency" content="{{ config('seo.currency') }}">

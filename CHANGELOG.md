@@ -12,6 +12,18 @@ a `main`, la GitHub Action `release.yml` crea la etiqueta `vX.Y.Z` y el Release 
 estas notas. Fuera de producción la versión se muestra como `vX.Y.Z-dev · commit`.
 El encabezado de cada sección debe ser exacto: `## [X.Y.Z] - AAAA-MM-DD`.
 
+## [1.4.0] - 2026-10-10
+
+### Agregado
+- Al compartir el enlace de una figura en WhatsApp, Facebook, X u otras redes sale una tarjeta con su foto, nombre, precio y el botón "Pídela por WhatsApp" (imagen JPEG de 1200×630 y menos de 300 KB, como piden las redes); se regenera sola si la figura cambia. El enlace del catálogo usa la imagen de portada del sitio.
+
+### Cambiado
+- Las fuentes (Fredoka y Nunito) se sirven desde el propio sitio en vez de Google Fonts: carga más rápida y sin pedir nada a terceros.
+- El seeder del catálogo borra las 8 figuras de ejemplo del primer seeder (Iron Man, etc.) mientras sigan sin categoría ni precio; si ya las editaste, no las toca.
+
+### Corregido
+- En el celular, el botón ✨ se encimaba con la barra de pedido de la ficha de la figura.
+
 ## [1.3.0] - 2026-10-10
 
 ### Agregado

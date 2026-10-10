@@ -27,6 +27,7 @@
     <meta property="og:image" content="{{ $ogImage }}">
     <meta property="og:image:alt" content="{{ $pageTitle }}">
     @if ($ogImage === asset('images/og-image.jpg'))
+        <meta property="og:image:type" content="image/jpeg">
         <meta property="og:image:width" content="1200">
         <meta property="og:image:height" content="630">
     @endif
@@ -40,9 +41,8 @@
     <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('images/favicon/favicon-32x32.png') }}">
     <link rel="apple-touch-icon" href="{{ asset('images/favicon/apple-touch-icon.png') }}">
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="preload" href="{{ asset('fonts/site/Nunito-400.woff2') }}" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="{{ asset('fonts/site/Fredoka-600.woff2') }}" as="font" type="font/woff2" crossorigin>
     @vite(['resources/css/app.css', 'resources/js/catalog.js'])
     @stack('styles')
     @stack('jsonld')
@@ -75,7 +75,7 @@
     </footer>
 
     <button id="fx-toggle" type="button" aria-pressed="true" aria-label="Burbujas y confeti"
-        class="fx-toggle fixed bottom-24 left-4 z-50 flex h-11 w-11 items-center justify-center rounded-full bg-white text-xl shadow-lg ring-1 ring-cream-200 md:bottom-5">✨</button>
+        class="fx-toggle fixed left-4 z-50 {{ trim($__env->yieldContent('toggle_pos')) ?: 'bottom-5' }} flex h-11 w-11 items-center justify-center rounded-full bg-white text-xl shadow-lg ring-1 ring-cream-200 md:bottom-5!">✨</button>
 
     @stack('scripts')
 </body>

@@ -6,6 +6,7 @@ use App\Models\Category;
 use App\Models\Figure;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class SeoTest extends TestCase
@@ -172,5 +173,50 @@ class SeoTest extends TestCase
             $this->assertStringContainsString('height=', $img, $img);
         }
         $this->assertStringContainsString('fetchpriority="high"', $html); // las primeras (LCP) cargan con prioridad
+    }
+
+    public function test_social_share_image_is_a_small_1200x630_jpeg_and_is_referenced_by_the_page(): void
+    {
+        Storage::fake('public');
+        Storage::fake('local');
+        $cat = Category::factory()->create(['name' => 'Marvel']);
+        $figure = Figure::factory()->create(['name' => 'Iron Man', 'slug' => 'iron-man', 'price' => 160, 'category_id' => $cat->id]);
+
+        $page = $this->get('/catalog/iron-man')->assertOk();
+        $page->assertSee('<meta property="og:image" content="'.route('og.figure', 'iron-man').'">', false)
+            ->assertSee('<meta property="og:image:width" content="1200">', false)
+            ->assertSee('<meta property="og:image:height" content="630">', false)
+            ->assertSee('<meta property="og:image:type" content="image/jpeg">', false)
+            ->assertSee('<meta name="twitter:image" content="'.route('og.figure', 'iron-man').'">', false);
+
+        $response = $this->get(route('og.figure', 'iron-man'))->assertOk()->assertHeader('Content-Type', 'image/jpeg');
+        $bytes = file_get_contents($response->baseResponse->getFile()->getPathname());
+        $info = getimagesizefromstring($bytes);
+        $this->assertSame([1200, 630], [$info[0], $info[1]]);
+        $this->assertSame('image/jpeg', $info['mime']);
+        $this->assertLessThan(300 * 1024, strlen($bytes), 'WhatsApp pide menos de 300 KB');
+
+        // Se regenera si la figura cambia (otro nombre de archivo) y no deja versiones viejas.
+        $figure->update(['price' => 200]);
+        $this->get(route('og.figure', 'iron-man'))->assertOk();
+        $this->assertCount(1, Storage::disk('local')->files('og'));
+    }
+
+    public function test_share_image_404s_for_unknown_or_inactive_figures(): void
+    {
+        Figure::factory()->inactive()->create(['slug' => 'oculta']);
+
+        $this->get('/og/oculta.jpg')->assertNotFound();
+        $this->get('/og/no-existe.jpg')->assertNotFound();
+    }
+
+    public function test_site_loads_its_own_fonts_and_not_google_fonts(): void
+    {
+        $html = $this->get('/')->getContent();
+
+        $this->assertStringNotContainsString('fonts.googleapis.com', $html);
+        $this->assertStringNotContainsString('fonts.gstatic.com', $html);
+        $this->assertStringContainsString('fonts/site/Nunito-400.woff2', $html);
+        $this->assertFileExists(public_path('fonts/site/Nunito-400.woff2'));
     }
 }

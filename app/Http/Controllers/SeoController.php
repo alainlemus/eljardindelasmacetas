@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Models\Figure;
+use App\Support\OgImage;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Cache;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class SeoController extends Controller
 {
@@ -52,5 +54,16 @@ class SeoController extends Controller
         });
 
         return response($xml, 200, ['Content-Type' => 'application/xml; charset=UTF-8', 'Cache-Control' => 'public, max-age=600']);
+    }
+
+    /** Tarjeta 1200×630 (JPEG) para compartir una figura en WhatsApp, Facebook, X, etc. */
+    public function ogImage(string $slug): BinaryFileResponse
+    {
+        $figure = Figure::active()->with('category')->where('slug', $slug)->firstOrFail();
+
+        return response()->file(OgImage::path($figure), [
+            'Content-Type' => 'image/jpeg',
+            'Cache-Control' => 'public, max-age=86400, s-maxage=604800',
+        ]);
     }
 }

@@ -4,6 +4,13 @@
 @source '../../storage/framework/views/*.php';
 @source '../views/**/*.blade.php';
 
+/* Fuentes propias (Fredoka y Nunito, licencia OFL), subconjunto latino: sin pedirlas a Google. */
+@font-face { font-family: 'Fredoka'; font-style: normal; font-weight: 500 700; font-display: swap; src: url('/fonts/site/Fredoka-600.woff2') format('woff2'); }
+@font-face { font-family: 'Nunito'; font-style: normal; font-weight: 400; font-display: swap; src: url('/fonts/site/Nunito-400.woff2') format('woff2'); }
+@font-face { font-family: 'Nunito'; font-style: normal; font-weight: 600; font-display: swap; src: url('/fonts/site/Nunito-600.woff2') format('woff2'); }
+@font-face { font-family: 'Nunito'; font-style: normal; font-weight: 700; font-display: swap; src: url('/fonts/site/Nunito-700.woff2') format('woff2'); }
+@font-face { font-family: 'Nunito'; font-style: normal; font-weight: 800; font-display: swap; src: url('/fonts/site/Nunito-800.woff2') format('woff2'); }
+
 @theme {
     --font-sans: 'Nunito', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
     --font-display: 'Fredoka', 'Nunito', ui-sans-serif, system-ui, sans-serif;

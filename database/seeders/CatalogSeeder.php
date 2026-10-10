@@ -19,6 +19,8 @@ use Illuminate\Support\Str;
  * - Las fotos salen del catálogo en PDF del proveedor, ya convertidas a WebP (data/images,
  *   mapeadas por SKU en data/catalogo_imagenes.json); se copian al disco público y solo se
  *   asignan a figuras que todavía no tienen foto.
+ * - Borra las 8 figuras de ejemplo del primer seeder (SKU FIG-…, sin categoría ni precio) si siguen
+ *   intactas; si ya les pusiste categoría o precio, no se tocan.
  * - Es idempotente: vuelve a correrse sin duplicar (se identifica por SKU) y no pisa
  *   precio, stock ni fotos de figuras ya existentes.
  */
@@ -33,8 +35,20 @@ class CatalogSeeder extends Seeder
     /** Costo de compra de las figuras sin precio en el catálogo del proveedor. */
     private const DEFAULT_COST = 85;
 
+    /** SKU de las figuras de ejemplo que cargaba la primera versión de este seeder. */
+    private const LEGACY_SAMPLE_SKUS = [
+        'FIG-MARVEL-001', 'FIG-MARVEL-002', 'FIG-DC-001', 'FIG-DC-002',
+        'FIG-ANIME-001', 'FIG-ANIME-002', 'FIG-MOVIE-001', 'FIG-GAME-001',
+    ];
+
     public function run(): void
     {
+        Figure::whereIn('sku', self::LEGACY_SAMPLE_SKUS)
+            ->whereNull('category_id')
+            ->whereNull('cost')
+            ->where('price', '<=', 0)
+            ->delete();
+
         $items = json_decode(file_get_contents(__DIR__.'/data/catalogo.json'), true, flags: JSON_THROW_ON_ERROR);
 
         $photos = json_decode(file_get_contents(__DIR__.'/data/catalogo_imagenes.json'), true, flags: JSON_THROW_ON_ERROR);

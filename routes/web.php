@@ -19,6 +19,7 @@ Route::middleware(PublicPage::class)
         Route::get('/', [CatalogController::class, 'index'])->name('home');
         Route::get('/catalog/share', [CatalogController::class, 'share'])->name('catalog.share');
         Route::get('/catalog/{slug}', [CatalogController::class, 'show'])->name('catalog.product');
+        Route::get('/og/{slug}.jpg', [SeoController::class, 'ogImage'])->where('slug', '[a-z0-9-]+')->name('og.figure');
     });
 
 // Una sola URL para el listado: /catalog (y sus parámetros) redirige a /.
