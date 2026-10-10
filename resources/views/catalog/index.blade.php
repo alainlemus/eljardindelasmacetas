@@ -1,6 +1,53 @@
 @extends('layouts.catalog')
 
-@section('title', 'Catálogo de El Jardín de las Macetas')
+@php
+    $activeCategory = request('category') ? $categories->firstWhere('slug', request('category')) : null;
+    $pageNumber = $figures->currentPage();
+    $canonicalParams = array_filter(['category' => $activeCategory?->slug, 'page' => $pageNumber > 1 ? $pageNumber : null]);
+    $title = ($activeCategory ? 'Figuras de '.$activeCategory->name.' | ' : 'Catálogo de macetas Funko Pop | ')
+        .config('seo.site_name').($pageNumber > 1 ? ' - Página '.$pageNumber : '');
+    $description = $activeCategory
+        ? 'Macetas artesanales de '.$activeCategory->name.': figuras Funko Pop convertidas en macetas. Elige la tuya y pídela por WhatsApp.'
+        : config('seo.description');
+@endphp
+
+@section('title', $title)
+@section('description', $description)
+@section('canonical', route('home', $canonicalParams))
+@if (request()->filled('search'))
+    @section('robots', 'noindex')
+@endif
+
+@push('jsonld')
+    <script type="application/ld+json">
+        {!! json_encode([
+            '@context' => 'https://schema.org',
+            '@graph' => [
+                [
+                    '@type' => 'Organization',
+                    '@id' => url('/').'#organization',
+                    'name' => config('seo.site_name'),
+                    'url' => url('/'),
+                    'logo' => asset('images/logo.png'),
+                    'description' => config('seo.description'),
+                ],
+                [
+                    '@type' => 'WebSite',
+                    '@id' => url('/').'#website',
+                    'url' => url('/'),
+                    'name' => config('seo.site_name'),
+                    'inLanguage' => 'es-MX',
+                    'publisher' => ['@id' => url('/').'#organization'],
+                    'potentialAction' => [
+                        '@type' => 'SearchAction',
+                        'target' => ['@type' => 'EntryPoint', 'urlTemplate' => url('/').'?search={search_term_string}'],
+                        'query-input' => 'required name=search_term_string',
+                    ],
+                ],
+            ],
+        ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG) !!}
+    </script>
+@endpush
 
 @section('content')
     {{-- Hero --}}
@@ -25,7 +72,7 @@
 
             <div class="relative flex flex-col items-center gap-6 text-center md:flex-row md:text-left">
                 <div data-depth="-14">
-                    <img src="{{ asset('images/logo.png') }}?v={{ filemtime(public_path('images/logo.png')) }}" alt="El Jardín de las Macetas" data-confetti="big" title="¡Tócame!"
+                    <img src="{{ asset('images/logo.png') }}?v={{ filemtime(public_path('images/logo.png')) }}" alt="El Jardín de las Macetas" width="176" height="176" fetchpriority="high" data-confetti="big" title="¡Tócame!"
                         class="logo-bob h-36 w-36 shrink-0 rounded-full bg-cream-50 object-contain p-2 shadow-xl md:h-44 md:w-44">
                 </div>
                 <div>
@@ -60,7 +107,7 @@
     {{-- Buscador y categorías --}}
     <section id="catalogo" class="sticky top-16 z-40 mt-10 border-y border-cream-200 bg-cream-50/95 py-3 backdrop-blur">
         <div class="mx-auto max-w-6xl px-4">
-            <form action="{{ route('catalog') }}" method="GET" class="flex gap-2">
+            <form action="{{ route('home') }}" method="GET" class="flex gap-2">
                 @if (request('category'))
                     <input type="hidden" name="category" value="{{ request('category') }}">
                 @endif
@@ -72,10 +119,10 @@
 
             <nav class="hide-scrollbar -mx-4 mt-3 flex gap-2 overflow-x-auto px-4" aria-label="Categorías">
                 @php($chip = 'shrink-0 rounded-full px-4 py-2 text-sm font-bold transition')
-                <a href="{{ route('catalog', array_filter(['search' => request('search')])) }}"
+                <a href="{{ route('home', array_filter(['search' => request('search')])) }}"
                     class="{{ $chip }} active:scale-95 {{ request('category') ? 'bg-white text-clay-800 ring-1 ring-cream-200 hover:ring-leaf-500' : 'bg-leaf-500 text-white' }}">Todas</a>
                 @foreach ($categories as $category)
-                    <a href="{{ route('catalog', array_filter(['category' => $category->slug, 'search' => request('search')])) }}"
+                    <a href="{{ route('home', array_filter(['category' => $category->slug, 'search' => request('search')])) }}"
                         class="{{ $chip }} active:scale-95 {{ request('category') === $category->slug ? 'bg-leaf-500 text-white' : 'bg-white text-clay-800 ring-1 ring-cream-200 hover:ring-leaf-500' }}">{{ $category->name }}</a>
                 @endforeach
             </nav>
@@ -84,10 +131,11 @@
 
     {{-- Figuras --}}
     <section class="mx-auto max-w-6xl px-4 pt-6">
+        <h2 class="sr-only">{{ $activeCategory ? 'Figuras de '.$activeCategory->name : 'Todas las figuras del catálogo' }}</h2>
         @if (request('search'))
             <p class="mb-4 text-sm text-clay-800/70">
                 {{ $figures->total() }} resultado(s) para “{{ request('search') }}”
-                <a href="{{ route('catalog', array_filter(['category' => request('category')])) }}" class="ml-2 font-bold text-leaf-600 underline">Limpiar</a>
+                <a href="{{ route('home', array_filter(['category' => request('category')])) }}" class="ml-2 font-bold text-leaf-600 underline">Limpiar</a>
             </p>
         @endif
 
@@ -106,7 +154,7 @@
                 <img src="{{ asset('images/logo.png') }}" alt="" class="mx-auto mb-4 h-24 w-24 object-contain opacity-60">
                 <h2 class="text-xl font-semibold">No encontramos figuras</h2>
                 <p class="mt-1 text-sm text-clay-800/70">Prueba con otra palabra o categoría.</p>
-                <a href="{{ route('catalog') }}" class="mt-5 inline-flex min-h-11 items-center rounded-full bg-leaf-500 px-6 text-sm font-bold text-white hover:bg-leaf-600">Ver todas</a>
+                <a href="{{ route('home') }}" class="mt-5 inline-flex min-h-11 items-center rounded-full bg-leaf-500 px-6 text-sm font-bold text-white hover:bg-leaf-600">Ver todas</a>
             </div>
         @endif
     </section>

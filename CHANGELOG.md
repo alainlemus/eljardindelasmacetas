@@ -12,6 +12,22 @@ a `main`, la GitHub Action `release.yml` crea la etiqueta `vX.Y.Z` y el Release 
 estas notas. Fuera de producción la versión se muestra como `vX.Y.Z-dev · commit`.
 El encabezado de cada sección debe ser exacto: `## [X.Y.Z] - AAAA-MM-DD`.
 
+## [1.3.0] - 2026-10-10
+
+### Agregado
+- SEO: `robots.txt` y `sitemap.xml` generados por el sitio (el sitemap lista las figuras activas y las categorías), título y descripción propios por categoría y por figura, URL canónica única, datos estructurados (Organización, Sitio web, Producto con precio y disponibilidad, migas de pan) y etiquetas completas para compartir en redes (Open Graph y Twitter).
+- Dev y staging ya no se indexan en buscadores (`noindex` y `Disallow: /`); se detectan por el dominio (`dev.`, `staging.`, `.test`) o con `SITE_INDEXABLE`.
+- Página 404 con el diseño del sitio y página de error 500/503 propias.
+- Enlace "Saltar al contenido" y textos alternativos y dimensiones en todas las imágenes (menos saltos al cargar); las primeras fotos cargan con prioridad.
+
+### Cambiado
+- `/catalog` redirige a `/` (una sola URL para el listado); las búsquedas no se indexan.
+- El catálogo público no crea sesión ni cookies por visitante (menos carga en la base de datos) y se puede cachear 1 minuto en el navegador y 5 en CDN.
+- Servidor: encabezados de seguridad (`Referrer-Policy`, `Permissions-Policy`), sin versión de nginx ni de PHP, archivos de `/build` con caché de un año y compresión también para JSON.
+
+### Corregido
+- `robots.txt` permitía indexar `/admin` y `/api`, y no apuntaba a un sitemap.
+
 ## [1.2.0] - 2026-10-10
 
 ### Agregado

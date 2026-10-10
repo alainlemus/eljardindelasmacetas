@@ -4,11 +4,12 @@
     <a href="{{ route('catalog.product', $figure->slug) }}" class="flex flex-1 flex-col focus-visible:outline-2 focus-visible:outline-leaf-500">
         <div class="relative aspect-square overflow-hidden bg-cream-100">
             @if ($img)
-                <img src="{{ $img }}" alt="{{ $figure->name }}" loading="lazy" decoding="async"
+                <img src="{{ $img }}" alt="{{ $figure->name }} - maceta Funko Pop" width="400" height="400"
+                    @if (isset($loop) && $loop->index < 4 && empty($lazy)) loading="eager" fetchpriority="high" @else loading="lazy" @endif decoding="async"
                     class="h-full w-full object-cover transition duration-500 group-hover:scale-105">
             @else
                 <div class="flex h-full w-full items-center justify-center">
-                    <img src="{{ asset('images/logo.png') }}" alt="" class="h-1/2 w-1/2 object-contain opacity-30 grayscale">
+                    <img src="{{ asset('images/logo.png') }}" alt="" width="200" height="200" loading="lazy" class="h-1/2 w-1/2 object-contain opacity-30 grayscale">
                 </div>
             @endif
 
