@@ -71,7 +71,19 @@
         <img src="{{ asset('images/logo.png') }}" alt="" width="56" height="56" loading="lazy" class="mx-auto mb-2 h-14 w-14 object-contain">
         <p class="font-display text-base font-semibold text-leaf-700">El Jardín de las Macetas</p>
         <p>Figuras Funko Pop convertidas en macetas artesanales</p>
-        <p class="mt-1">© {{ date('Y') }} Todos los derechos reservados <span class="font-mono text-xs" title="Versión del sistema">· {{ \App\Support\AppVersion::label() }}</span></p>
+        @php($socialLinks = \App\Models\SocialLink::active()->filter(fn ($link) => $link->href))
+        @if ($socialLinks->isNotEmpty())
+            <nav aria-label="Redes sociales" class="mt-4 flex flex-wrap items-center justify-center gap-3">
+                @foreach ($socialLinks as $link)
+                    <a href="{{ $link->href }}" target="_blank" rel="noopener" title="{{ $link->display_name }}"
+                        class="flex h-11 w-11 items-center justify-center rounded-full bg-white text-leaf-700 shadow-sm ring-1 ring-cream-200 transition hover:bg-leaf-500 hover:text-white">
+                        @include('catalog.partials.social-icon', ['platform' => $link->platform, 'class' => 'h-5 w-5'])
+                        <span class="sr-only">{{ $link->display_name }}</span>
+                    </a>
+                @endforeach
+            </nav>
+        @endif
+        <p class="mt-4">© {{ date('Y') }} Todos los derechos reservados <span class="font-mono text-xs" title="Versión del sistema">· {{ \App\Support\AppVersion::label() }}</span></p>
     </footer>
 
     <button id="fx-toggle" type="button" aria-pressed="true" aria-label="Burbujas y confeti"

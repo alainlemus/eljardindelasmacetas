@@ -35,6 +35,18 @@ class User extends Authenticatable implements FilamentUser
         ];
     }
 
+    protected static function booted(): void
+    {
+        // Si cambia la contraseña o se borra la cuenta, la app pierde las sesiones abiertas.
+        static::updated(function (User $user) {
+            if ($user->wasChanged('password')) {
+                $user->tokens()->delete();
+            }
+        });
+
+        static::deleting(fn (User $user) => $user->tokens()->delete());
+    }
+
     public function canAccessPanel(Panel $panel): bool
     {
         return $this->isAdmin();

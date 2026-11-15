@@ -30,6 +30,7 @@
                     'url' => url('/'),
                     'logo' => asset('images/logo.png'),
                     'description' => config('seo.description'),
+                    'sameAs' => \App\Models\SocialLink::active()->where('platform', '!=', 'whatsapp')->pluck('url')->filter()->values()->all(),
                 ],
                 [
                     '@type' => 'WebSite',
