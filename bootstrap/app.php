@@ -2,6 +2,7 @@
 
 use App\Filament\AdminPanelProvider;
 use App\Http\Middleware\EnsureUserIsAdmin;
+use App\Http\Middleware\RedirectToCanonicalHost;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Application;
@@ -22,6 +23,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->prepend(RedirectToCanonicalHost::class);
+
         $middleware->web(append: [
             EncryptCookies::class,
             AddQueuedCookiesToResponse::class,

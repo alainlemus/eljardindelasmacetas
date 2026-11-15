@@ -12,6 +12,11 @@ a `main`, la GitHub Action `release.yml` crea la etiqueta `vX.Y.Z` y el Release 
 estas notas. Fuera de producción la versión se muestra como `vX.Y.Z-dev · commit`.
 El encabezado de cada sección debe ser exacto: `## [X.Y.Z] - AAAA-MM-DD`.
 
+## [1.5.1] - 2026-11-15
+
+### Corregido
+- El sitio respondía igual con `www` y sin `www`, y Google lo indexaba como dos sitios distintos. Ahora `www.eljardindelasmacetas.com` redirige (301) al dominio sin `www`, conservando la página y sus parámetros.
+
 ## [1.5.0] - 2026-10-10
 
 ### Corregido

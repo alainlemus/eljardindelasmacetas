@@ -210,6 +210,34 @@ class SeoTest extends TestCase
         $this->get('/og/no-existe.jpg')->assertNotFound();
     }
 
+    public function test_www_redirects_to_the_canonical_host_keeping_path_and_query(): void
+    {
+        config(['app.url' => 'https://eljardindelasmacetas.com']);
+
+        $this->get('https://www.eljardindelasmacetas.com/catalog/mafalda?page=2&category=personajes')
+            ->assertStatus(301)
+            ->assertRedirect('https://eljardindelasmacetas.com/catalog/mafalda?page=2&category=personajes');
+
+        $this->get('https://www.eljardindelasmacetas.com/')
+            ->assertStatus(301)
+            ->assertRedirect('https://eljardindelasmacetas.com/');
+
+        $this->get('https://www.eljardindelasmacetas.com/sitemap.xml')->assertStatus(301);
+    }
+
+    public function test_canonical_host_and_unrelated_hosts_are_not_redirected(): void
+    {
+        config(['app.url' => 'https://eljardindelasmacetas.com']);
+        Figure::factory()->create(['slug' => 'mafalda']);
+
+        $this->get('https://eljardindelasmacetas.com/catalog/mafalda')
+            ->assertOk()
+            ->assertSee('<link rel="canonical" href="https://eljardindelasmacetas.com/catalog/mafalda">', false);
+
+        $this->get('https://dev.eljardindelasmacetas.com/')->assertOk();
+        $this->get('http://10.0.0.5/up')->assertOk();
+    }
+
     public function test_site_loads_its_own_fonts_and_not_google_fonts(): void
     {
         $html = $this->get('/')->getContent();
