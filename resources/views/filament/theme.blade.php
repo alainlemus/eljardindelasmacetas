@@ -1,3 +1,7 @@
+{{-- Íconos del panel: los mismos tamaños que el catálogo (Filament solo emite un <link rel="icon">). --}}
+<link rel="icon" type="image/png" sizes="32x32" href="{{ asset('images/favicon/favicon-32x32.png') }}">
+<link rel="apple-touch-icon" href="{{ asset('images/favicon/apple-touch-icon.png') }}">
+
 {{-- Tema verde del panel (misma identidad que el catálogo y el inicio de sesión). --}}
 <style>
     /* Base */
