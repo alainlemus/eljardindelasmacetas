@@ -50,10 +50,31 @@ class ExampleTest extends TestCase
         $this->actingAs($admin, 'sanctum')->getJson('/api/products/top-selling')->assertOk();
     }
 
+    public function test_landing_hides_figures_without_photos(): void
+    {
+        $withPhoto = Category::factory()->create(['name' => 'Con foto', 'slug' => 'con-foto']);
+        $withoutPhoto = Category::factory()->create(['name' => 'Sin fotos', 'slug' => 'sin-fotos']);
+
+        Figure::factory()->featured()->create(['category_id' => $withPhoto->id, 'name' => 'Con Principal', 'image' => 'figures/a.jpg']);
+        Figure::factory()->create(['category_id' => $withPhoto->id, 'name' => 'Solo Galeria', 'images' => ['figures/b.jpg']]);
+        Figure::factory()->featured()->create(['category_id' => $withoutPhoto->id, 'name' => 'Sin Foto Nula', 'image' => null, 'images' => []]);
+        Figure::factory()->create(['category_id' => $withoutPhoto->id, 'name' => 'Sin Foto Vacia', 'image' => '', 'images' => null]);
+
+        foreach (['/', '/catalog/share'] as $url) {
+            $this->get($url)->assertOk()
+                ->assertSee('Con Principal')->assertSee('Solo Galeria')
+                ->assertDontSee('Sin Foto Nula')->assertDontSee('Sin Foto Vacia');
+        }
+
+        // La categoría que solo tiene figuras sin foto no aparece en el menú.
+        $this->get('/')->assertSee('Con foto')->assertDontSee('Sin fotos');
+        $this->get('/?search=Sin+Foto')->assertDontSee('Sin Foto Nula');
+    }
+
     public function test_figure_detail_and_filters_render(): void
     {
         $category = Category::factory()->create(['slug' => 'marvel']);
-        $figure = Figure::factory()->featured()->create(['category_id' => $category->id, 'name' => 'Iron Maceta']);
+        $figure = Figure::factory()->featured()->create(['category_id' => $category->id, 'name' => 'Iron Maceta', 'image' => 'figures/iron.jpg']);
         Figure::factory()->outOfStock()->create(['category_id' => $category->id, 'name' => 'Agotada Uno']);
 
         $this->get("/catalog/{$figure->slug}")->assertOk()->assertSee('Iron Maceta');
