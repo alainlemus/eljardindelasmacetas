@@ -12,6 +12,11 @@ a `main`, la GitHub Action `release.yml` crea la etiqueta `vX.Y.Z` y el Release 
 estas notas. Fuera de producción la versión se muestra como `vX.Y.Z-dev · commit`.
 El encabezado de cada sección debe ser exacto: `## [X.Y.Z] - AAAA-MM-DD`.
 
+## [1.6.1] - 2026-11-15
+
+### Cambiado
+- El catálogo ya no muestra las figuras sin foto: no salen en el listado, la búsqueda, los destacados, el catálogo compartido ni las relacionadas, y una categoría que solo tiene figuras sin foto desaparece del menú. Basta con una foto principal o una de la galería para que la figura aparezca. Su ficha individual sigue abriendo para no romper enlaces ya compartidos.
+
 ## [1.6.0] - 2026-11-15
 
 ### Agregado

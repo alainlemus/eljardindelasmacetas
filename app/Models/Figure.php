@@ -93,6 +93,14 @@ class Figure extends Model
         return $query->where('is_active', true);
     }
 
+    /** Con al menos una foto (principal o en la galería): las demás no se muestran en el catálogo. */
+    public function scopeWithImage(Builder $query): Builder
+    {
+        return $query->where(fn (Builder $q) => $q
+            ->where(fn (Builder $q) => $q->whereNotNull('image')->where('image', '!=', ''))
+            ->orWhere(fn (Builder $q) => $q->whereNotNull('images')->whereNotIn('images', ['', '[]', 'null'])));
+    }
+
     public function scopeInStock(Builder $query): Builder
     {
         return $query->where('stock', '>', 0);

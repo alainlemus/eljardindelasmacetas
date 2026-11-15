@@ -95,7 +95,7 @@ class SeoTest extends TestCase
     public function test_search_pages_are_noindex_and_category_pages_have_their_own_canonical(): void
     {
         $cat = Category::factory()->create(['name' => 'Marvel', 'slug' => 'marvel']);
-        Figure::factory()->create(['name' => 'Iron Man', 'category_id' => $cat->id]);
+        Figure::factory()->create(['name' => 'Iron Man', 'category_id' => $cat->id, 'image' => 'figures/iron.jpg']);
 
         $this->get('/?search=iron')->assertSee('noindex, nofollow', false)->assertSee('<link rel="canonical" href="'.route('home').'">', false);
 

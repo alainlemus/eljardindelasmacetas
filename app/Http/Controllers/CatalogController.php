@@ -11,6 +11,7 @@ class CatalogController extends Controller
     public function index(Request $request)
     {
         $query = Figure::active()
+            ->withImage()
             ->with('category');
 
         if ($request->has('category') && $request->category) {
@@ -30,11 +31,12 @@ class CatalogController extends Controller
 
         $categories = Category::active()
             ->whereHas('figures', function ($query) {
-                $query->active();
+                $query->active()->withImage();
             })
             ->get();
 
         $featured = Figure::active()
+            ->withImage()
             ->featured()
             ->with('category')
             ->limit(6)
@@ -51,6 +53,7 @@ class CatalogController extends Controller
             ->firstOrFail();
 
         $relatedFigures = Figure::active()
+            ->withImage()
             ->where('category_id', $figure->category_id)
             ->where('id', '!=', $figure->id)
             ->limit(4)
@@ -62,6 +65,7 @@ class CatalogController extends Controller
     public function share(Request $request)
     {
         $figures = Figure::active()
+            ->withImage()
             ->with('category')
             ->orderByRaw('stock > 0 desc')
             ->orderBy('is_featured', 'desc')
@@ -69,7 +73,7 @@ class CatalogController extends Controller
 
         $categories = Category::active()
             ->whereHas('figures', function ($query) {
-                $query->active();
+                $query->active()->withImage();
             })
             ->get();
 
