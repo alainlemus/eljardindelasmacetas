@@ -139,10 +139,10 @@ class Figure extends Model
         return $this->gallery[0] ?? null;
     }
 
-    /** Enlace de WhatsApp: al número del negocio si está configurado, o selector de contacto. */
+    /** Enlace de WhatsApp: al número del negocio (panel → Redes sociales) si hay uno activo, o selector de contacto. */
     public static function whatsappUrl(string $text, bool $toBusiness = false): string
     {
-        $number = $toBusiness ? preg_replace('/\D+/', '', (string) config('services.whatsapp.number')) : '';
+        $number = $toBusiness ? (string) SocialLink::whatsappNumber() : '';
 
         return 'https://wa.me/'.$number.'?text='.rawurlencode($text);
     }

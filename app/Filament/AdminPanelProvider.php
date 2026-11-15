@@ -27,9 +27,12 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->login(Login::class)
             ->brandName('El Jardín de las Macetas')
-            ->brandLogo(asset('images/logo.png'))
+            // En closures: asset() debe resolverse durante la petición, cuando ya se
+            // forzó https detrás del proxy. Evaluado aquí mismo (al registrar el panel)
+            // generaba URLs http:// y el navegador bloqueaba el favicon por contenido mixto.
+            ->brandLogo(fn (): string => asset('images/logo.png'))
             ->brandLogoHeight('3rem')
-            ->favicon(asset('images/favicon/favicon-96x96.png'))
+            ->favicon(fn (): string => asset('images/favicon/favicon-96x96.png'))
             ->colors([
                 // Escala verde del logo (600 = #3A7F30, el verde de marca).
                 'primary' => [

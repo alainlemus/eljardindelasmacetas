@@ -7,12 +7,14 @@ use App\Filament\Resources\FigureResource\Pages\ManageFigures;
 use App\Models\Category;
 use App\Models\Figure;
 use App\Models\User;
+use App\Support\ImageOptimizer;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\Testing\TestAction;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\URL;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -197,7 +199,7 @@ class AdminPanelTest extends TestCase
 
         $info = getimagesizefromstring(Storage::disk('public')->get($figure->image));
         $this->assertSame('image/webp', $info['mime']);
-        $this->assertSame(\App\Support\ImageOptimizer::MAX_SIDE, max($info[0], $info[1]));
+        $this->assertSame(ImageOptimizer::MAX_SIDE, max($info[0], $info[1]));
 
         $this->assertCount(1, $figure->images);
         $this->assertStringEndsWith('.webp', $figure->images[0]);
@@ -216,6 +218,24 @@ class AdminPanelTest extends TestCase
             ->assertHasActionErrors(['image']);
 
         $this->assertDatabaseMissing('figures', ['sku' => 'FM-9101']);
+    }
+
+    public function test_favicon_uses_https_behind_the_proxy(): void
+    {
+        // En producción AppServiceProvider fuerza https al arrancar (el proxy termina TLS),
+        // después de que el panel ya se registró. Si el ícono sale con http:// el
+        // navegador lo bloquea por contenido mixto y no se ve.
+        URL::forceScheme('https');
+
+        $this->get('/admin/login')
+            ->assertOk()
+            ->assertSee('<link rel="icon" href="https://', false)
+            ->assertDontSee('http://sistema-funkos.test/images/', false);
+    }
+
+    public function test_favicon_ico_is_a_real_icon(): void
+    {
+        $this->assertGreaterThan(0, filesize(public_path('favicon.ico')));
     }
 
     public function test_logout_works(): void

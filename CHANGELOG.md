@@ -12,6 +12,18 @@ a `main`, la GitHub Action `release.yml` crea la etiqueta `vX.Y.Z` y el Release 
 estas notas. Fuera de producción la versión se muestra como `vX.Y.Z-dev · commit`.
 El encabezado de cada sección debe ser exacto: `## [X.Y.Z] - AAAA-MM-DD`.
 
+## [1.6.0] - 2026-11-15
+
+### Agregado
+- Panel → Configuración → **Redes sociales**: agregar, editar, ordenar, ocultar o eliminar el WhatsApp y las redes (Facebook, Instagram, TikTok, YouTube, X u otro enlace). El WhatsApp activo recibe los pedidos de "Pedir por WhatsApp" y las redes aparecen como íconos en el pie del catálogo (y en los datos estructurados para Google). Al migrar, el número de `WHATSAPP_NUMBER` se copia aquí.
+- Panel → Configuración → **Usuarios**: alta, edición y baja de cuentas para el panel y la app. El interruptor "Administrador" da acceso al panel y a gestionar el catálogo desde la app; también se pueden cerrar las sesiones de la app de un usuario.
+
+### Cambiado
+- Cambiar la contraseña de un usuario o eliminarlo cierra sus sesiones en la app.
+
+### Corregido
+- El favicon del panel no se veía en producción (salía con `http://` y el navegador lo bloqueaba); ahora sale con `https://` y el panel usa los mismos íconos que el catálogo.
+
 ## [1.5.1] - 2026-11-15
 
 ### Corregido
