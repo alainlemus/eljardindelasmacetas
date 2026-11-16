@@ -44,7 +44,8 @@ class FigureController extends Controller
             $query->where('stock', '>', 0)->lowStock();
         }
 
-        $figures = $query->orderBy('name')->paginate(min((int) $request->get('per_page', 15), 100));
+        // El id desempata nombres repetidos: sin él, al paginar se repiten unas figuras y se saltan otras.
+        $figures = $query->orderBy('name')->orderBy('id')->paginate(min((int) $request->get('per_page', 15), 100));
 
         return response()->json(
             $figures->through(fn ($figure) => new FigureResource($figure))
@@ -55,6 +56,7 @@ class FigureController extends Controller
     public function stats(): JsonResponse
     {
         $lowStock = Figure::active()->where('stock', '>', 0)->lowStock();
+        $withStock = Figure::where('stock', '>=', 1);
 
         return response()->json([
             'data' => [
@@ -65,6 +67,10 @@ class FigureController extends Controller
                 'low_stock' => (clone $lowStock)->count(),
                 'out_of_stock' => Figure::active()->where('stock', 0)->count(),
                 'inventory_value' => (float) Figure::selectRaw('COALESCE(SUM(price * stock), 0) as total')->value('total'),
+                // Inversión: lo que costaron las macetas que hay en existencia (costo × stock, stock ≥ 1).
+                'investment' => (float) (clone $withStock)->selectRaw('COALESCE(SUM(COALESCE(cost, 0) * stock), 0) as total')->value('total'),
+                'investment_figures' => (clone $withStock)->count(),
+                'investment_missing_cost' => (clone $withStock)->where(fn ($q) => $q->whereNull('cost')->orWhere('cost', '<=', 0))->count(),
                 'categories' => Category::count(),
                 'low_stock_items' => FigureResource::collection((clone $lowStock)->orderBy('stock')->limit(5)->get()),
             ],
