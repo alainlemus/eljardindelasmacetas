@@ -271,6 +271,30 @@ class AppFlowsTest extends TestCase
             ->assertJsonCount(1, 'data.low_stock_items');
     }
 
+    public function test_investment_sums_cost_times_stock_of_figures_in_stock(): void
+    {
+        Figure::factory()->create(['cost' => 80, 'stock' => 1]);
+        Figure::factory()->create(['cost' => 50, 'stock' => 3]);                 // 150
+        Figure::factory()->create(['cost' => 90, 'stock' => 0]);                 // sin stock: no cuenta
+        Figure::factory()->create(['cost' => 70, 'stock' => 2, 'is_active' => false]); // inactiva con stock: sí cuenta
+        Figure::factory()->create(['cost' => null, 'stock' => 1]);               // sin costo capturado
+
+        $this->asAdmin()->getJson('/api/figures/stats')->assertOk()
+            ->assertJsonPath('data.investment', 370)
+            ->assertJsonPath('data.investment_figures', 4)
+            ->assertJsonPath('data.investment_missing_cost', 1);
+    }
+
+    public function test_figure_list_pages_never_repeat_or_skip_figures_with_the_same_name(): void
+    {
+        Figure::factory()->count(7)->sequence(fn ($s) => ['name' => 'Ana', 'slug' => 'ana-'.$s->index])->create();
+        $this->asAdmin();
+
+        $ids = collect([1, 2, 3])->flatMap(fn ($p) => $this->getJson("/api/figures?per_page=3&page={$p}")->json('data.*.id'));
+
+        $this->assertCount(7, $ids->unique());
+    }
+
     // ---------- Fotos ----------
 
     public function test_single_and_multiple_uploads_are_webp_with_urls_the_app_can_save(): void

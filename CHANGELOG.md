@@ -12,6 +12,14 @@ a `main`, la GitHub Action `release.yml` crea la etiqueta `vX.Y.Z` y el Release 
 estas notas. Fuera de producción la versión se muestra como `vX.Y.Z-dev · commit`.
 El encabezado de cada sección debe ser exacto: `## [X.Y.Z] - AAAA-MM-DD`.
 
+## [1.7.0] - 2026-11-15
+
+### Agregado
+- API para la app (`/api/figures/stats`): campos `investment` (suma de costo × stock de las figuras con stock de 1 o más), `investment_figures` (cuántas son) e `investment_missing_cost` (cuántas no tienen costo capturado). La app 2.1.0 los muestra en la tarjeta "Inversión".
+
+### Corregido
+- La lista de figuras de la app repetía unas y se saltaba otras al cambiar de página cuando había nombres iguales; ahora el orden se desempata por id.
+
 ## [1.6.1] - 2026-11-15
 
 ### Cambiado
